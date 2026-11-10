@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>รูเลตซ้อมมือ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Sarabun:wght@400;600&display=swap">
+<style>
+/* Layout: a felt table set in a wooden rail. Wheel and tally on one side, betting layout on the other; one column on phones with the action bar pinned to the bottom. Single dark look by choice. */
+:root {
+  color-scheme: dark;
+  --felt: #17553a;
+  --felt-hi: #1f6b49;
+  --felt-deep: #0b2a1f;
+  --rail: #071a13;
+  --wood: #5b3519;
+  --wood-hi: #94602f;
+  --wood-deep: #2a1608;
+  --ivory: #f3ecd9;
+  --muted: #a8b9ab;
+  --brass: #d8b05a;
+  --brass-hi: #f6e0a4;
+  --brass-deep: #8b6b2b;
+  --red: #b5332b;
+  --red-hi: #d4574d;
+  --black: #17191c;
+  --black-hi: #33373d;
+  --zero: #1f8a4c;
+  --slate: #4a5a66;
+  --line: rgba(243, 236, 217, 0.34);
+  --shade: rgba(0, 0, 0, 0.45);
+  --win: #86dba6;
+  --loss: #f3978b;
+  --font-display: "Chakra Petch", "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+  --font-body: "Sarabun", "Noto Sans Thai", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--felt-deep); height: 100%; padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px); }
+body {
+  background: radial-gradient(120% 80% at 50% 0%, #123c2c 0%, var(--felt-deep) 55%, var(--rail) 100%) fixed var(--felt-deep);
+  margin: 0;
+  color: var(--ivory);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px 0;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.45; }
+:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 2px; }
+.app { max-width: 1040px; height: 100%; min-height: 540px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.top > div:first-child { min-width: 0; }
+.bal { flex: none; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; line-height: 1.15; margin: 0; letter-spacing: 0.01em; text-wrap: balance; text-shadow: 0 2px 0 var(--shade); }
+.sub { margin: 2px 0 0; color: var(--muted); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bal { text-align: right; }
+.lab { display: block; color: var(--muted); font-size: 0.75rem; letter-spacing: 0.04em; }
+.bal output { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; line-height: 1.1; color: var(--brass); font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 var(--shade); }
+
+.tabs { display: flex; gap: 6px; background: var(--rail); padding: 4px; border-radius: 10px; box-shadow: inset 0 2px 6px var(--shade); }
+.tabs button { flex: 1; border: 0; background: transparent; padding: 6px 8px; border-radius: 7px; font-family: var(--font-display); font-weight: 500; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: linear-gradient(var(--felt-hi), var(--felt)); color: var(--ivory); box-shadow: 0 2px 4px var(--shade); }
+
+.banner { flex: none; display: flex; gap: 10px; align-items: center; justify-content: space-between; background: var(--rail); border: 1px solid var(--brass-deep); border-radius: 10px; padding: 5px 12px; font-size: 0.85rem; }
+.banner p { margin: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.banner .link { flex: none; }
+.banner b { font-family: var(--font-display); color: var(--brass); }
+.link { background: none; border: 0; color: var(--brass); text-decoration: underline; padding: 4px 0; font-size: 0.85rem; }
+
+.play-grid { flex: 1; min-height: 0; display: grid; gap: 6px 10px; grid-template-columns: 104px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: "wheel info" "wheel chips" "table table"; }
+.col { display: contents; }
+.info { grid-area: info; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.hrow { display: flex; gap: 8px; align-items: center; min-width: 0; }
+
+.wheel-wrap { grid-area: wheel; align-self: center; flex: none; container-type: inline-size; position: relative; width: 104px; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 2px 0 var(--wood-hi) inset; }
+.wheel-wrap canvas { width: 100%; height: 100%; display: block; }
+.readout { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.readout span { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; font-size: 22cqw; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 2px 4px #000; }
+.readout .red { color: #ff8479; }
+.readout .black { color: var(--ivory); }
+.readout .zero { color: var(--win); }
+
+.msg { min-height: 2.7em; margin: 0; font-size: 0.88rem; line-height: 1.35; }
+.msg strong { font-family: var(--font-display); }
+.msg .win { color: var(--win); }
+.msg .loss { color: var(--loss); }
+
+.history { flex: 1; min-width: 0; overflow: hidden; display: flex; gap: 4px; min-height: 28px; align-items: center; }
+.history .h { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums; border: 1px solid var(--line); box-shadow: 0 2px 3px var(--shade), inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+.history .empty { color: var(--muted); font-size: 0.85rem; }
+.h.red { background: var(--red); }
+.h.black { background: var(--black); }
+.h.zero { background: var(--zero); }
+
+.sheet { position: fixed; inset: 0; z-index: 20; display: none; place-items: center; background: rgba(0, 0, 0, 0.7); padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet.open { display: grid; }
+.sheet-in { width: min(100%, 420px); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
+.modal { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(0, 0, 0, 0.72); padding: 16px; }
+.modal-in { width: min(100%, 400px); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+.modal-in > div { display: flex; flex-direction: column; gap: 8px; }
+.modal .btn.primary { flex: none; }
+.modal .setrow { grid-template-columns: minmax(0, 1fr) 150px; }
+.modal .note { margin: 0; }
+.code { margin: 0; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 2.4rem; letter-spacing: 0.3em; color: var(--brass); }
+.panel { background: linear-gradient(#0a2219, var(--rail)); border: 1px solid rgba(243, 236, 217, 0.12); border-radius: 10px; padding: 12px 14px; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); }
+.panel dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; }
+.panel dt { color: var(--muted); font-size: 0.9rem; }
+.panel dd { margin: 0; text-align: right; font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.panel .note { margin: 8px 0 0; color: var(--muted); font-size: 0.8rem; }
+.panel .row { display: flex; justify-content: flex-end; margin-top: 8px; }
+.panel h2 { font-family: var(--font-display); font-size: 1rem; margin: 0 0 8px; }
+.plist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.plist li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto 78px; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px solid rgba(243, 236, 217, 0.12); font-variant-numeric: tabular-nums; }
+.num { width: 100%; min-width: 0; font: inherit; font-family: var(--font-display); font-variant-numeric: tabular-nums; padding: 5px 8px; min-height: 36px; border-radius: 7px; border: 1px solid var(--line); background: var(--felt-deep); color: var(--ivory); }
+.setup { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.setup h2, .setup .note { margin: 0; }
+.setrow { display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: 10px; align-items: center; }
+.setrow label { font-size: 0.9rem; color: var(--ivory); letter-spacing: 0; }
+.plist .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plist .st { font-family: var(--font-display); color: var(--brass); }
+.plist .bl { font-family: var(--font-display); color: var(--muted); font-size: 0.85rem; }
+
+.chips { grid-area: chips; display: flex; gap: 8px; align-items: center; padding-bottom: 5px; }
+.chip { --c: var(--slate); flex: none; width: 40px; height: 40px; font-size: 0.85rem; border-radius: 50%; border: 0; padding: 0; font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ivory); text-shadow: 0 1px 2px #000;
+  background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.22), transparent 46%), radial-gradient(circle, var(--c) 0 55%, rgba(243, 236, 217, 0.85) 56% 59%, transparent 60%), repeating-conic-gradient(var(--ivory) 0 15deg, var(--c) 15deg 45deg);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55), 0 8px 12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.12s; }
+.chip[data-v="5"] { --c: var(--red); }
+.chip[data-v="25"] { --c: var(--zero); }
+.chip[data-v="100"] { --c: var(--black); }
+.chip[aria-pressed="true"] { transform: translateY(-5px); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55), 0 12px 14px rgba(0, 0, 0, 0.55), 0 0 0 3px var(--brass); }
+.hint { display: none; margin: 0; color: var(--muted); font-size: 0.82rem; text-align: center; }
+
+.rail { grid-area: table; min-height: 0; display: flex; padding: 6px; border-radius: 14px; background: linear-gradient(145deg, var(--wood-hi) 0%, var(--wood) 30%, var(--wood-deep) 100%); box-shadow: 0 16px 30px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.22), inset 0 -3px 0 rgba(0, 0, 0, 0.45); }
+.layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 12fr) minmax(0, 1fr) minmax(0, 2fr); border-radius: 9px; padding: 4px; user-select: none; -webkit-user-select: none;
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 2px, transparent 2px 5px), radial-gradient(130% 90% at 30% 10%, var(--felt-hi), var(--felt) 55%, #0f3c29 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 6px 18px rgba(0, 0, 0, 0.6); }
+.cell { position: relative; border: 1px solid var(--line); background: transparent; padding: 0; min-height: 0; line-height: 1; font-family: var(--font-display); font-weight: 700; font-size: clamp(0.78rem, 2.4vh, 1.05rem); font-variant-numeric: tabular-nums; display: grid; place-items: center; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); }
+.cell.out { font-size: clamp(0.68rem, 2vh, 0.88rem); font-weight: 500; background: rgba(0, 0, 0, 0.12); }
+.cell.red { background: linear-gradient(160deg, var(--red-hi), var(--red) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.35); }
+.cell.black { background: linear-gradient(160deg, var(--black-hi), var(--black) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.5); }
+.cell.zero { background: linear-gradient(160deg, #35b06a, var(--zero) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.35); border-radius: 14px 14px 0 0; }
+.cell.hit { box-shadow: inset 0 0 0 3px var(--brass-hi), 0 0 14px var(--brass); z-index: 1; }
+.zero-row { grid-column: 2; display: grid; }
+.dozens { grid-column: 1; grid-row: 2; display: grid; grid-template-rows: repeat(3, 1fr); }
+.dozens .cell { writing-mode: vertical-rl; }
+.nums { grid-column: 2; grid-row: 2; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(12, minmax(0, 1fr)); }
+.cols { grid-column: 2; grid-row: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.evens { grid-column: 1 / -1; grid-row: 4; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.spot { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 0; background: transparent; padding: 0; z-index: 2; display: grid; place-items: center; }
+.spot::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--ivory); opacity: 0.4; }
+.spot.has::before { display: none; }
+.stack { position: absolute; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 10px; color: #1b1404; font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; display: grid; place-items: center; pointer-events: none; font-variant-numeric: tabular-nums; writing-mode: horizontal-tb; text-shadow: none;
+  background: radial-gradient(circle at 50% 30%, var(--brass-hi), var(--brass) 70%); border: 1.5px dashed #5a4312; box-shadow: 0 2px 0 var(--brass-deep), 0 4px 0 #5a4312, 0 6px 6px rgba(0, 0, 0, 0.6); }
+.cell .stack { right: 3px; top: 50%; margin-top: -11px; }
+.spot .stack { position: static; }
+
+.actions { flex: none; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; padding-block: 8px 10px; }
+.btn { border: 1px solid var(--line); background: linear-gradient(var(--felt-hi), var(--felt)); border-radius: 8px; padding: 8px 10px; min-height: 44px; font-family: var(--font-display); font-weight: 500; white-space: nowrap; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5); }
+.btn.primary { flex: 1; background: linear-gradient(var(--brass-hi), var(--brass) 45%, var(--brass-deep)); color: #1b1404; border-color: var(--brass-deep); font-weight: 700; font-size: 1.05rem; white-space: normal; }
+.staked { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+
+/* Trainer */
+.train { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-width: 520px; margin: 0 auto; width: 100%; padding-bottom: 10px; }
+.seg { display: flex; gap: 6px; }
+.seg button { flex: 1; border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 8px; font-family: var(--font-display); color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--felt); color: var(--ivory); border-color: var(--brass); }
+.qcard { background: radial-gradient(130% 90% at 30% 10%, var(--felt-hi), var(--felt) 60%); border: 2px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45); }
+.qhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.qhead p { margin: 0; }
+.timer { font-family: var(--font-display); font-variant-numeric: tabular-nums; color: var(--brass); }
+.items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
+.items li { display: flex; justify-content: space-between; align-items: center; background: var(--felt-deep); border-radius: 8px; padding: 8px 12px; }
+.items b { font-family: var(--font-display); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.qform { display: flex; gap: 8px; align-items: flex-end; }
+.qform .field { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.qform input { width: 100%; font: inherit; font-family: var(--font-display); font-size: 1.4rem; font-variant-numeric: tabular-nums; padding: 8px 12px; min-height: 46px; border-radius: 8px; border: 1px solid var(--line); background: var(--rail); color: var(--ivory); }
+.qform .btn.primary { flex: 0 0 auto; }
+.feedback { min-height: 1.5em; margin: 0; }
+.feedback .ok { color: var(--win); font-weight: 600; }
+.feedback .no { color: var(--loss); font-weight: 600; }
+.feedback .work { display: block; font-family: var(--font-display); font-variant-numeric: tabular-nums; color: var(--ivory); margin-top: 4px; }
+.tstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; text-align: center; }
+.tstats div { background: var(--rail); border-radius: 8px; padding: 8px 4px; }
+.tstats b { display: block; font-family: var(--font-display); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.tstats span { color: var(--muted); font-size: 0.78rem; }
+.cheat { background: var(--rail); border-radius: 10px; padding: 10px 14px; }
+.cheat summary { cursor: pointer; font-family: var(--font-display); }
+.cheat table { width: 100%; border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.cheat td { padding: 5px 0; border-top: 1px solid var(--line); }
+.cheat td:last-child { text-align: right; font-family: var(--font-display); }
+@media (min-width: 820px) {
+  h1 { font-size: 1.6rem; }
+  .sub { font-size: 0.85rem; }
+  .bal output { font-size: 1.7rem; }
+  .play-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1fr); grid-template-areas: none; gap: 16px; }
+  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+  .wheel-wrap, .info, .chips, .rail { grid-area: auto; }
+  .wheel-wrap { width: min(100%, 290px, 34vh); margin: 0 auto; }
+  .msg { text-align: center; font-size: 1rem; }
+  .sheet { position: static; display: block; background: none; padding: 0; flex: 1 1 auto; min-height: 0; overflow: auto; }
+  .sheet-in { width: auto; max-height: none; overflow: visible; }
+  .only-narrow { display: none; }
+  .chips { justify-content: center; gap: 12px; }
+  .chip { width: 50px; height: 50px; font-size: 1rem; }
+  .hint { display: block; }
+  .rail { flex: 1 1 auto; padding: 10px; border-radius: 18px; max-height: 780px; }
+  .layout { padding: 8px; grid-template-columns: 52px minmax(0, 1fr); }
+  .spot { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+}
+@media (prefers-reduced-motion: reduce) { .chip, .btn { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <h1>รูเลตซ้อมมือ</h1>
+      <p class="sub">ชิปสมมุติ ไม่ใช่เงินจริง · วงล้อยุโรป เลข 0 ตัวเดียว</p>
+    </div>
+    <div class="bal"><span class="lab" id="bal-label">ชิปคงเหลือ</span><output id="balance">1,000</output></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="โหมด">
+    <button id="tab-play" role="tab" aria-selected="true" aria-controls="view-play">เล่นโต๊ะ</button>
+    <button id="tab-train" role="tab" aria-selected="false" aria-controls="view-train">ฝึกคิดเลขดีลเลอร์</button>
+  </nav>
+
+  <section class="view" id="view-play" role="tabpanel" aria-labelledby="tab-play">
+    <div class="banner" id="banner">
+      <p id="banner-text"></p>
+      <button class="link" id="mode-toggle" type="button">เล่นกับเพื่อน</button>
+    </div>
+    <div class="play-grid">
+      <div class="col">
+        <div class="wheel-wrap">
+          <canvas id="wheel" aria-label="วงล้อรูเลต"></canvas>
+          <div class="readout"><span id="readout"></span></div>
+        </div>
+        <div class="info">
+          <p class="msg" id="msg" aria-live="polite">วางชิปบนโต๊ะ แล้วกดหมุน</p>
+          <div class="hrow">
+            <div class="history" id="history" aria-label="ผลย้อนหลัง"></div>
+            <button class="link only-narrow" id="stats-btn" type="button">สถิติ</button>
+          </div>
+        </div>
+
+        <div class="sheet" id="sheet"><div class="sheet-in">
+        <div class="panel" id="tally">
+          <dl>
+            <dt>เล่นไปแล้ว</dt><dd id="s-spins">0 ตา</dd>
+            <dt>ยอดแทงรวม</dt><dd id="s-wagered">0</dd>
+            <dt>ผลจริง</dt><dd id="s-net">0</dd>
+            <dt>ตามทฤษฎีควรเสีย</dt><dd id="s-theory">0</dd>
+          </dl>
+          <p class="note">ทฤษฎี = ยอดแทงรวม ÷ 37 (เจ้ามือได้เปรียบ 2.7%) ยิ่งเล่นมาก ผลจริงยิ่งวิ่งเข้าหาเลขนี้</p>
+          <div class="row"><button class="link" id="reset" type="button">เริ่มใหม่ 1,000 ชิป</button></div>
+        </div>
+
+        <div class="panel" id="dealer" hidden>
+          <h2>สมุดเจ้ามือ</h2>
+          <dl>
+            <dt>ยอดแทงรอบนี้</dt><dd id="d-stake">0</dd>
+            <dt>ผลเจ้ามือรอบนี้</dt><dd id="d-round">–</dd>
+            <dt>กำไรเจ้ามือสะสม</dt><dd id="d-total">0</dd>
+          </dl>
+          <ul class="plist" id="d-players"></ul>
+          <p class="note" id="d-note">ยังไม่มีผู้เล่นเข้าโต๊ะ กด “เชิญเพื่อน” ด้านบนเพื่อส่งลิงก์</p>
+          <div class="setup">
+            <h2>ตั้งเกมใหม่</h2>
+            <div class="setrow">
+              <label class="lab" for="g-def">ชิปเริ่มต้นของทุกคน</label>
+              <input class="num" id="g-def" inputmode="numeric" autocomplete="off" maxlength="7" value="1000">
+            </div>
+            <p class="note">อยากให้ใครได้ไม่เท่าคนอื่น ใส่จำนวนในช่องท้ายชื่อด้านบน ช่องที่เว้นว่างจะได้ตามค่าเริ่มต้น</p>
+            <button class="btn" id="g-start" type="button">เริ่มเกมใหม่ แจกชิปทุกคน</button>
+            <p class="note" id="g-msg" aria-live="polite"></p>
+          </div>
+        </div>
+        <button class="btn only-narrow" id="sheet-close" type="button">ปิด</button>
+        </div></div>
+      </div>
+
+      <div class="col">
+        <div class="chips" id="chips" role="group" aria-label="เลือกชิป">
+          <button class="chip" data-v="1" aria-pressed="false" type="button">1</button>
+          <button class="chip" data-v="5" aria-pressed="true" type="button">5</button>
+          <button class="chip" data-v="25" aria-pressed="false" type="button">25</button>
+          <button class="chip" data-v="100" aria-pressed="false" type="button">100</button>
+        </div>
+        <p class="hint" id="hint">แตะเลขเพื่อแทงเดี่ยว แตะจุดบนเส้นเพื่อแทงคร่อม มุม แถว หรือหกเลข</p>
+        <div class="rail">
+          <div class="layout" id="layout">
+            <div class="zero-row" id="zero-row"></div>
+            <div class="dozens" id="dozens"></div>
+            <div class="nums" id="nums"></div>
+            <div class="cols" id="cols"></div>
+            <div class="evens" id="evens"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="undo" type="button">ย้อน</button>
+      <button class="btn" id="clear" type="button">ล้าง</button>
+      <button class="btn" id="rebet" type="button">แทงซ้ำ</button>
+      <button class="btn primary" id="spin" type="button">หมุน</button>
+    </div>
+  </section>
+
+  <section class="view" id="view-train" role="tabpanel" aria-labelledby="tab-train" hidden>
+    <div class="train">
+      <div class="seg" role="group" aria-label="ระดับ">
+        <button id="mode-times" type="button" aria-pressed="true">สูตรคูณ 35 / 17</button>
+        <button id="mode-mix" type="button" aria-pressed="false">ชิปผสม</button>
+      </div>
+      <div class="qcard">
+        <div class="qhead"><p>เลขออกแล้ว ต้องจ่ายกี่ชิป?</p><span class="timer" id="q-timer">0.0 วิ</span></div>
+        <ul class="items" id="q-items"></ul>
+        <form class="qform" id="q-form" novalidate>
+          <div class="field">
+            <label class="lab" for="q-answer">คำตอบ</label>
+            <input id="q-answer" inputmode="numeric" autocomplete="off" maxlength="5">
+          </div>
+          <button class="btn primary" id="q-submit" type="submit">ตรวจ</button>
+        </form>
+        <p class="feedback" id="q-feedback" aria-live="polite"></p>
+      </div>
+      <div class="tstats">
+        <div><b id="t-score">0/0</b><span>ตอบถูก</span></div>
+        <div><b id="t-streak">0</b><span>ถูกติดกัน</span></div>
+        <div><b id="t-best">–</b><span>เร็วสุด (วิ)</span></div>
+      </div>
+      <details class="cheat">
+        <summary>โพยอัตราจ่าย</summary>
+        <table>
+          <tr><td>เดี่ยว (1 เลข)</td><td>× 35</td></tr>
+          <tr><td>คร่อม (2 เลข)</td><td>× 17</td></tr>
+          <tr><td>แถว (3 เลข)</td><td>× 11</td></tr>
+          <tr><td>มุม (4 เลข)</td><td>× 8</td></tr>
+          <tr><td>หกเลข (6 เลข)</td><td>× 5</td></tr>
+        </table>
+      </details>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="lobby" hidden>
+  <div class="panel modal-in" role="dialog" aria-labelledby="l-title">
+    <h2 id="l-title">เล่นกับเพื่อน</h2>
+    <div id="l-join">
+      <div class="setrow"><label class="lab" for="l-name">ชื่อของคุณ</label><input class="num" id="l-name" maxlength="20" autocomplete="off"></div>
+      <div class="setrow"><label class="lab" for="l-code">รหัสห้องจากเจ้ามือ</label><input class="num" id="l-code" maxlength="4" autocomplete="off" autocapitalize="characters"></div>
+      <button class="btn primary" id="l-join-btn" type="button">เข้าโต๊ะ</button>
+      <p class="note">หรือเปิดโต๊ะของคุณเอง แล้วส่งลิงก์ให้เพื่อน</p>
+      <button class="btn" id="l-host-btn" type="button">เปิดโต๊ะใหม่ ฉันเป็นเจ้ามือ</button>
+    </div>
+    <div id="l-host" hidden>
+      <p class="code" id="l-show"></p>
+      <label class="lab" for="l-link">ลิงก์สำหรับส่งให้เพื่อน</label>
+      <input class="num" id="l-link" readonly>
+      <button class="btn primary" id="l-copy" type="button">คัดลอกลิงก์</button>
+      <p class="note">เปิดหน้านี้ค้างไว้ตลอดเกม ถ้าเจ้ามือปิดหน้า ผู้เล่นจะหลุดจากโต๊ะ</p>
+      <button class="btn" id="l-end" type="button">ปิดโต๊ะ เลิกเป็นเจ้ามือ</button>
+    </div>
+    <p class="note" id="l-msg" aria-live="polite"></p>
+    <button class="btn" id="l-close" type="button">ปิด</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+  var REDS = {1:1,3:1,5:1,7:1,9:1,12:1,14:1,16:1,18:1,19:1,21:1,23:1,25:1,27:1,30:1,32:1,34:1,36:1};
+  var START = 1000;
+  var KEY = "roulette-practice-v1";
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return Math.round(n).toLocaleString("en-GB"); };
+  var signed = function (n) { return (n > 0 ? "+" : n < 0 ? "−" : "") + fmt(Math.abs(n)); };
+  var colorOf = function (n) { return n === 0 ? "zero" : REDS[n] ? "red" : "black"; };
+  var colorTh = { zero: "เขียว", red: "แดง", black: "ดำ" };
+  var compact = function (n) { return n >= 1000 ? (n / 1000).toFixed(n % 1000 ? 1 : 0) + "k" : String(n); };
+  var isInt = function (n) { return typeof n === "number" && isFinite(n) && Math.floor(n) === n; };
+
+  var state = { balance: START, spins: 0, wagered: 0, net: 0, history: [], tScore: 0, tTotal: 0, tStreak: 0, tBest: null, game: null };
+  var savedBets = [], savedRound = null;
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && typeof saved.balance === "number") {
+      Object.keys(state).forEach(function (k) { if (saved[k] !== undefined) state[k] = saved[k]; });
+      if (Array.isArray(saved.bets)) savedBets = saved.bets;
+      if (isInt(saved.betsRound)) savedRound = saved.betsRound;
+    }
+  } catch (e) {}
+
+  var bets = new Map();     // spot key -> chips
+  var stack = [];           // [key, chips] in the order placed
+  var betsRound = null;     // dealer round these bets belong to; null when playing alone
+  var lastBets = [];
+  var lastRoundNet = null, lastRound = null;
+  var spots = new Map();    // key -> { el, nums, badge }
+  var chip = 5;
+  var spinning = false;
+  var hitEl = null;
+
+  // Dealer table (shared) state
+  var mode = "solo";        // "solo" | "live"
+  var live = { isDealer: false, uid: null, name: "", code: null, status: "", tableRef: null, playerRef: null, avail: false };
+  var table = null;         // { round, phase: "open" | "spun", result, history }
+  var players = [];         // dealer only: [{ id, d }]
+  var shownRound = null, shownOpen = null, firstTable = true, dealerBusy = false;
+  var sync = { timer: null, busy: false, dirty: false, off: false, ok: false, last: "" };
+  var startDraft = {}, listSig = null, rowEls = {}, gameNote = null;
+
+  function staked() { var s = 0; bets.forEach(function (a) { s += a; }); return s; }
+  function save() {
+    try {
+      var copy = Object.assign({}, state, { history: state.history.slice(0, 15), bets: Array.from(bets.entries()), betsRound: betsRound });
+      localStorage.setItem(KEY, JSON.stringify(copy));
+    } catch (e) {}
+  }
+
+  /* ---------- build the layout ---------- */
+  function badge() { var s = document.createElement("span"); s.className = "stack"; s.hidden = true; return s; }
+  function register(el, key, nums) {
+    var b = badge(); el.appendChild(b);
+    spots.set(key, { el: el, nums: nums, badge: b });
+    el.addEventListener("click", function () { place(key); });
+  }
+  function cell(parent, text, key, nums, cls, label) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "cell " + (cls || ""); b.textContent = text;
+    b.setAttribute("aria-label", label || text);
+    parent.appendChild(b); register(b, key, nums); return b;
+  }
+  function range(a, b) { var r = []; for (var i = a; i <= b; i++) r.push(i); return r; }
+  function spot(nums, x, y, label) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "spot";
+    b.style.left = (x * 100) + "%"; b.style.top = (y * 100) + "%";
+    b.setAttribute("aria-label", label + " " + nums.join("/"));
+    $("nums").appendChild(b);
+    register(b, "n:" + nums.join("-"), nums);
+  }
+  var numCells = {};
+  numCells[0] = cell($("zero-row"), "0", "n:0", [0], "zero", "เลข 0");
+  for (var n = 1; n <= 36; n++) numCells[n] = cell($("nums"), String(n), "n:" + n, [n], colorOf(n), "เลข " + n);
+  for (var r = 0; r < 12; r++) {
+    for (var c = 0; c < 3; c++) {
+      var m = r * 3 + c + 1;
+      if (c < 2) spot([m, m + 1], (c + 1) / 3, (r + 0.5) / 12, "คร่อม");
+      if (r < 11) spot([m, m + 3], (c + 0.5) / 3, (r + 1) / 12, "คร่อม");
+      if (c < 2 && r < 11) spot([m, m + 1, m + 3, m + 4], (c + 1) / 3, (r + 1) / 12, "มุม");
+    }
+    spot([r * 3 + 1, r * 3 + 2, r * 3 + 3], 0, (r + 0.5) / 12, "แถว");
+    if (r < 11) spot(range(r * 3 + 1, r * 3 + 6), 0, (r + 1) / 12, "หกเลข");
+  }
+  spot([0, 1], 1 / 6, 0, "คร่อม"); spot([0, 2], 0.5, 0, "คร่อม"); spot([0, 3], 5 / 6, 0, "คร่อม");
+  spot([0, 1, 2], 1 / 3, 0, "สามเลข"); spot([0, 2, 3], 2 / 3, 0, "สามเลข"); spot([0, 1, 2, 3], 0, 0, "สี่เลขแรก");
+  cell($("dozens"), "1–12", "o:d1", range(1, 12), "out", "โหลแรก 1 ถึง 12");
+  cell($("dozens"), "13–24", "o:d2", range(13, 24), "out", "โหลสอง 13 ถึง 24");
+  cell($("dozens"), "25–36", "o:d3", range(25, 36), "out", "โหลสาม 25 ถึง 36");
+  [1, 2, 0].forEach(function (rem, i) {
+    cell($("cols"), "2:1", "o:c" + (i + 1), range(1, 36).filter(function (x) { return x % 3 === rem; }), "out", "แถวตั้งที่ " + (i + 1));
+  });
+  cell($("evens"), "1–18", "o:low", range(1, 18), "out", "ต่ำ 1 ถึง 18");
+  cell($("evens"), "คู่", "o:even", range(1, 36).filter(function (x) { return x % 2 === 0; }), "out");
+  cell($("evens"), "แดง", "o:red", range(1, 36).filter(function (x) { return REDS[x]; }), "out red");
+  cell($("evens"), "ดำ", "o:black", range(1, 36).filter(function (x) { return !REDS[x]; }), "out black");
+  cell($("evens"), "คี่", "o:odd", range(1, 36).filter(function (x) { return x % 2 === 1; }), "out");
+  cell($("evens"), "19–36", "o:high", range(19, 36), "out", "สูง 19 ถึง 36");
+
+  savedBets.forEach(function (b) {
+    if (Array.isArray(b) && spots.has(b[0]) && isInt(b[1]) && b[1] > 0) { bets.set(b[0], b[1]); stack.push([b[0], b[1]]); }
+  });
+  if (bets.size) betsRound = savedRound;
+
+  /* ---------- betting ---------- */
+  function setMsg(html) { $("msg").innerHTML = html; }
+  function stakeMsg() { return "แทงอยู่ <strong class=\"staked\">" + fmt(staked()) + "</strong> ชิป"; }
+  function idleMsg() {
+    if (mode !== "live") return "วางชิปบนโต๊ะ แล้วกดหมุน";
+    if (live.isDealer) return !table ? "กด “เปิดโต๊ะ” เพื่อเริ่มรับแทง" : table.phase === "open" ? "รอบที่ " + table.round + " เปิดรับแทงอยู่" : "กด “เปิดรอบใหม่” เพื่อรับแทงต่อ";
+    if (!table) return live.status || "รอเจ้ามือเปิดโต๊ะ";
+    return table.phase === "open" ? "รอบที่ " + table.round + " เปิดรับแทงแล้ว วางชิปได้" : "รอเจ้ามือเปิดรอบใหม่";
+  }
+  function clearHit() { if (hitEl) { hitEl.classList.remove("hit"); hitEl = null; } }
+  function canBet() {
+    if (spinning) return false;
+    if (mode !== "live") return true;
+    return !live.isDealer && !!table && table.phase === "open";
+  }
+  function place(key) {
+    if (!canBet()) {
+      if (mode === "live" && !spinning) setMsg(live.isDealer ? "เจ้ามือไม่แทง คุณเป็นฝ่ายรับแทง" : "ตอนนี้ปิดรับแทง รอเจ้ามือเปิดรอบใหม่");
+      return;
+    }
+    if (state.balance < chip) { setMsg("ชิปไม่พอสำหรับชิป " + chip + " เลือกชิปเล็กลง"); return; }
+    clearHit();
+    state.balance -= chip;
+    bets.set(key, (bets.get(key) || 0) + chip);
+    stack.push([key, chip]);
+    betsRound = mode === "live" ? table.round : null;
+    setMsg(stakeMsg()); render(); queueSync();
+  }
+  function undo() {
+    if (!canBet() || !stack.length) return;
+    var last = stack.pop(), left = bets.get(last[0]) - last[1];
+    if (left > 0) bets.set(last[0], left); else bets.delete(last[0]);
+    state.balance += last[1];
+    setMsg(bets.size ? stakeMsg() : idleMsg()); render(); queueSync();
+  }
+  function refund() {
+    state.balance += staked(); bets.clear(); stack = []; betsRound = null;
+  }
+  function clearBets() {
+    if (!canBet() || !bets.size) return;
+    refund(); setMsg(idleMsg()); render(); queueSync();
+  }
+  function rebet() {
+    if (!canBet() || !lastBets.length) return;
+    clearHit();
+    var skipped = 0;
+    lastBets.forEach(function (b) {
+      if (state.balance >= b[1]) {
+        state.balance -= b[1];
+        bets.set(b[0], (bets.get(b[0]) || 0) + b[1]);
+        stack.push([b[0], b[1]]);
+      } else skipped++;
+    });
+    if (bets.size) betsRound = mode === "live" ? table.round : null;
+    setMsg(skipped ? "ชิปไม่พอแทงซ้ำครบทุกช่อง" : stakeMsg()); render(); queueSync();
+  }
+  function payback(entries, result) {
+    var back = 0;
+    entries.forEach(function (e) {
+      var s = spots.get(e[0]);
+      if (s && s.nums.indexOf(result) !== -1) back += e[1] * (36 / s.nums.length);
+    });
+    return back;
+  }
+  function showResult(result) {
+    var col = colorOf(result);
+    $("readout").textContent = result; $("readout").className = col;
+    clearHit(); hitEl = numCells[result]; hitEl.classList.add("hit");
+    ballIdx = ORDER.indexOf(result);
+    return "ออก <strong>" + result + " " + colorTh[col] + "</strong>";
+  }
+  function settle(result, round) {
+    var entries = Array.from(bets.entries()), st = staked(), back = payback(entries, result), net = back - st;
+    state.balance += back; state.wagered += st; state.net += net;
+    if (st) state.spins++;
+    if (mode !== "live") { if (!st) state.spins++; state.history.unshift(result); state.history = state.history.slice(0, 15); }
+    if (entries.length) lastBets = entries;
+    lastRoundNet = st ? net : null; lastRound = round === undefined ? null : round;
+    bets.clear(); stack = []; betsRound = null;
+    var head = showResult(result);
+    if (!st) setMsg(head + (mode === "live" ? "" : " · ตานี้ไม่ได้แทง"));
+    else if (net > 0) setMsg(head + " · <span class=\"win\">ได้ " + signed(net) + " ชิป</span>");
+    else if (net === 0) setMsg(head + " · เสมอตัว");
+    else setMsg(head + " · <span class=\"loss\">เสีย " + signed(net) + " ชิป</span>");
+    if (state.balance < 1) setMsg($("msg").innerHTML + " · ชิปหมด กด “เริ่มใหม่ 1,000 ชิป” ในสถิติ");
+  }
+  function rand37() {
+    var a = new Uint32Array(1), lim = Math.floor(4294967296 / 37) * 37;
+    do { crypto.getRandomValues(a); } while (a[0] >= lim);
+    return a[0] % 37;
+  }
+  function soloSpin() {
+    if (spinning || mode !== "solo") return;
+    spinning = true; clearHit();
+    var result = rand37();
+    $("readout").textContent = "";
+    setMsg("ลูกกำลังวิ่ง…"); render();
+    spinTo(ORDER.indexOf(result), function () { spinning = false; settle(result); render(); });
+  }
+
+  /* ---------- dealer table: shared rounds ---------- */
+  function normTable(d) {
+    if (!d || !isInt(d.round)) return null;
+    var hist = Array.isArray(d.history) ? d.history.filter(function (x) { return isInt(x) && x >= 0 && x <= 36; }).slice(0, 15) : [];
+    var res = isInt(d.result) && d.result >= 0 && d.result <= 36 ? d.result : null;
+    var start = {};
+    if (d.start && typeof d.start === "object") Object.keys(d.start).forEach(function (k) { var v = d.start[k]; if (isInt(v) && v > 0 && v <= 1e6) start[k] = v; });
+    return { round: d.round, phase: d.phase === "spun" && res !== null ? "spun" : "open", result: res, history: hist,
+      game: isInt(d.game) ? d.game : null, def: isInt(d.def) && d.def > 0 && d.def <= 1e6 ? d.def : START, start: start };
+  }
+  function enterLive() {
+    if (spinning || mode === "live") return;
+    if (bets.size && (betsRound === null || !table)) refund();
+    mode = "live"; clearHit(); $("readout").textContent = "";
+    shownRound = null; shownOpen = null;
+    setMsg(idleMsg()); reconcile(true); render(); queueSync();
+  }
+  function leaveLive() {
+    if (spinning || mode !== "live") return;
+    if (bets.size) { setMsg("ล้างชิปที่แทงอยู่ก่อน แล้วค่อยสลับโหมด"); return; }
+    netStop(); net.map = {}; players = []; table = null;
+    live.isDealer = false; live.code = null; live.avail = false; live.status = ""; live.playerRef = null;
+    netSaved.role = null; netSaved.table = null; saveNet(netSaved);
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    mode = "solo"; clearHit(); $("readout").textContent = ""; setMsg(idleMsg()); render();
+  }
+  function reconcile(quiet) {
+    if (mode !== "live" || spinning || !table) return;
+    if (!live.isDealer && table.game !== null && state.game !== table.game) {
+      // the dealer dealt a new game: take the chips set for this player
+      var amt = live.uid && table.start[live.uid] !== undefined ? table.start[live.uid] : table.def;
+      bets.clear(); stack = []; betsRound = null; lastBets = []; lastRoundNet = null; lastRound = null;
+      state.balance = amt; state.spins = 0; state.wagered = 0; state.net = 0; state.game = table.game;
+      gameNote = "เจ้ามือเริ่มเกมใหม่ คุณได้ <strong>" + fmt(amt) + "</strong> ชิป";
+      queueSync();
+    }
+    if (bets.size && betsRound !== table.round) {
+      if (table.phase === "open" && betsRound === table.round - 1 && table.history.length) { settle(table.history[0], betsRound); queueSync(); }
+      else { refund(); queueSync(); }
+    }
+    if (table.phase === "spun" && shownRound !== table.round) {
+      var round = table.round, res = table.result;
+      shownRound = round;
+      var finish = function () {
+        if (bets.size && betsRound === round) { settle(res, round); queueSync(); }
+        else setMsg(showResult(res));
+      };
+      if (quiet) finish();
+      else {
+        spinning = true; clearHit(); $("readout").textContent = "";
+        setMsg("เจ้ามือปิดรับแทงแล้ว ลูกกำลังวิ่ง…"); render();
+        spinTo(ORDER.indexOf(res), function () { spinning = false; finish(); reconcile(); render(); });
+      }
+    } else if (table.phase === "open" && shownOpen !== table.round) {
+      shownOpen = table.round;
+      if (!quiet || !hitEl) { clearHit(); $("readout").textContent = ""; }
+      setMsg(gameNote || (bets.size ? stakeMsg() : idleMsg())); gameNote = null;
+    }
+  }
+  function parseChips(v) {
+    var t = String(v).replace(/[,\s]/g, "");
+    if (!/^\d{1,7}$/.test(t)) return null;
+    var n = Number(t);
+    return n >= 1 && n <= 1000000 ? n : null;
+  }
+  function newGame() {
+    if (dealerBusy || spinning || mode !== "live" || !live.isDealer) return;
+    var def = parseChips($("g-def").value), start = {}, bad = false;
+    players.forEach(function (p) {
+      var v = startDraft[p.id];
+      if (v === undefined || String(v).trim() === "") return;
+      var n = parseChips(v);
+      if (n === null) bad = true; else start[p.id] = n;
+    });
+    if (def === null || bad) { $("g-msg").textContent = "ใส่จำนวนชิปเป็นตัวเลข 1 ถึง 1,000,000"; return; }
+    var game = (table && table.game !== null ? table.game : 0) + 1;
+    var next = { round: (table ? table.round : 0) + 1, phase: "open", result: null, history: [], game: game, def: def, start: start };
+    dealerBusy = true; render();
+    live.tableRef.set(next).then(function () {
+      dealerBusy = false; $("g-msg").textContent = "เริ่มเกมที่ " + game + " แล้ว แจกชิปเรียบร้อย เปิดรับแทงอยู่"; render();
+    }, function () { dealerBusy = false; $("g-msg").textContent = "บันทึกไม่สำเร็จ ลองกดอีกครั้ง"; render(); });
+  }
+  function dealerAct() {
+    if (dealerBusy || spinning || mode !== "live" || !live.isDealer) return;
+    var next;
+    if (!table || table.phase === "spun") next = { round: (table ? table.round : 0) + 1, phase: "open", result: null, history: table ? table.history : [] };
+    else { var res = rand37(); next = { round: table.round, phase: "spun", result: res, history: [res].concat(table.history).slice(0, 15) }; }
+    if (table && table.game !== null) { next.game = table.game; next.def = table.def; next.start = table.start; }
+    dealerBusy = true; render();
+    live.tableRef.set(next).then(function () { dealerBusy = false; render(); }, function () {
+      dealerBusy = false; setMsg("บันทึกโต๊ะไม่สำเร็จ ลองกดอีกครั้ง"); render();
+    });
+  }
+  function queueSync() {
+    if (!live.playerRef || sync.off || live.isDealer || mode !== "live") return;
+    clearTimeout(sync.timer); sync.timer = setTimeout(flushSync, 700);
+  }
+  function flushSync() {
+    if (sync.busy) { sync.dirty = true; return; }
+    var b = {}; bets.forEach(function (a, k) { b[k] = a; });
+    var body = { name: live.name, round: betsRound, bets: b, balance: state.balance, net: state.net, lastRound: lastRound, lastNet: lastRoundNet };
+    var json = JSON.stringify(body);
+    if (json === sync.last) return;
+    sync.busy = true;
+    live.playerRef.set(body).then(function () { sync.last = json; if (!sync.ok) { sync.ok = true; render(); } }, function (e) {
+      var code = e && e.code;
+      if (code !== "unavailable" && code !== "resource_exhausted") { sync.off = true; render(); }
+    }).then(function () {
+      sync.busy = false;
+      if (sync.dirty) { sync.dirty = false; queueSync(); }
+    });
+  }
+  function validBets(d) {
+    var out = [];
+    if (d && d.bets && typeof d.bets === "object") Object.keys(d.bets).forEach(function (k) {
+      var a = d.bets[k];
+      if (spots.has(k) && typeof a === "number" && isFinite(a) && a > 0 && a <= 1e6) out.push([k, a]);
+    });
+    return out;
+  }
+  /* ---------- network: the dealer's browser hosts the table, players join by room code ---------- */
+  var NETKEY = "roulette-net-v1", PREFIX = "roulette-somue-v1-", ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  var net = { peer: null, conn: null, conns: {}, map: {}, retry: null, ping: null, lastSeen: 0, quiet: true, tries: 0 };
+  var netSaved = {};
+  try { netSaved = JSON.parse(localStorage.getItem(NETKEY) || "null") || {}; } catch (e) {}
+  function saveNet(o) { try { localStorage.setItem(NETKEY, JSON.stringify(o)); } catch (e) {} }
+  if (typeof netSaved.pid !== "string" || !/^[a-z0-9]{4,20}$/.test(netSaved.pid)) { netSaved.pid = "p" + Math.random().toString(36).slice(2, 12); saveNet(netSaved); }
+  live.uid = netSaved.pid; live.name = typeof netSaved.name === "string" ? netSaved.name : "";
+  function newCode() { var c = ""; for (var i = 0; i < 4; i++) c += ALPHA[Math.floor(Math.random() * ALPHA.length)]; return c; }
+  function cleanCode(v) { var c = String(v || "").replace(/[^a-z0-9]/gi, "").toUpperCase(); return c.length === 4 ? c : null; }
+  function cleanName(v) { return String(v || "").replace(/[\u0000-\u001f]/g, "").trim().slice(0, 20); }
+  function setStatus(t) { live.status = t; render(); }
+  function setHash(code) { try { history.replaceState(null, "", "#" + code); } catch (e) {} }
+  function netStop() {
+    clearTimeout(net.retry); clearInterval(net.ping);
+    try { if (net.peer) net.peer.destroy(); } catch (e) {}
+    net.peer = null; net.conn = null; net.conns = {};
+  }
+  function syncPlayers() { players = Object.keys(net.map).map(function (id) { return { id: id, d: net.map[id] }; }); }
+  function broadcast() {
+    var msg = { t: "table", table: table };
+    Object.keys(net.conns).forEach(function (k) { try { net.conns[k].send(msg); } catch (e) {} });
+  }
+  function persistHost() { netSaved.role = "dealer"; netSaved.code = live.code; netSaved.table = table; saveNet(netSaved); }
+  function hostStart(code, restore) {
+    if (spinning) return false;
+    if (!window.Peer) { $("l-msg").textContent = "โหลดระบบเชื่อมต่อไม่ได้ เช็กอินเทอร์เน็ตแล้วเปิดหน้าใหม่"; return false; }
+    netStop();
+    if (bets.size) refund();
+    live.isDealer = true; live.code = code; live.avail = true; live.playerRef = null; live.status = "กำลังเปิดห้อง…";
+    live.tableRef = { set: function (next) {
+      return Promise.resolve().then(function () { table = normTable(next); persistHost(); broadcast(); reconcile(); render(); });
+    } };
+    table = restore ? normTable(restore) : null;
+    net.map = {}; net.tries = 0; syncPlayers(); persistHost(); setHash(code);
+    if (mode !== "live") enterLive(); else { reconcile(true); render(); }
+    hostPeer();
+    return true;
+  }
+  function hostPeer() {
+    var peer = new window.Peer(PREFIX + live.code); net.peer = peer;
+    var again = function (text, ms) {
+      setStatus(text);
+      net.retry = setTimeout(function () { if (net.peer !== peer) return; try { peer.destroy(); } catch (e) {} hostPeer(); }, ms);
+    };
+    peer.on("open", function () { net.tries = 0; setStatus(""); });
+    peer.on("connection", function (conn) {
+      var pid = null;
+      conn.on("data", function (m) {
+        if (!m || typeof m !== "object") return;
+        if (m.t === "hello" && typeof m.pid === "string" && /^[a-z0-9]{4,20}$/.test(m.pid)) {
+          if (!net.map[m.pid] && Object.keys(net.map).length >= 30) { try { conn.close(); } catch (e) {} return; }
+          pid = m.pid; net.conns[pid] = conn;
+          if (!net.map[pid]) net.map[pid] = {};
+          net.map[pid].name = cleanName(m.name);
+          try { conn.send({ t: "table", table: table }); } catch (e) {}
+          syncPlayers(); render();
+        } else if (m.t === "state" && pid && net.map[pid] && m.body && typeof m.body === "object") {
+          var b = m.body;
+          net.map[pid] = { name: cleanName(b.name) || net.map[pid].name, round: b.round, bets: b.bets, balance: b.balance, net: b.net, lastRound: b.lastRound, lastNet: b.lastNet };
+          syncPlayers(); render();
+        } else if (m.t === "ping") { try { conn.send({ t: "pong" }); } catch (e) {} }
+      });
+      conn.on("close", function () {
+        if (pid && net.conns[pid] === conn) { delete net.conns[pid]; delete net.map[pid]; syncPlayers(); render(); }
+      });
+    });
+    peer.on("disconnected", function () {
+      if (net.peer !== peer) return;
+      setStatus("สัญญาณหลุด กำลังต่อใหม่…"); try { peer.reconnect(); } catch (e) {}
+    });
+    peer.on("error", function (err) {
+      if (net.peer !== peer) return;
+      var type = err && err.type;
+      if (type === "unavailable-id") {
+        if (net.tries++ >= 3) { live.code = newCode(); net.tries = 0; persistHost(); setHash(live.code); }
+        again("กำลังเปิดห้อง…", 2500);
+      } else if (type === "network" || type === "server-error" || type === "socket-error" || type === "socket-closed") {
+        again("ต่ออินเทอร์เน็ตไม่ได้ กำลังลองใหม่…", 4000);
+      }
+    });
+  }
+  function joinStart(code, name) {
+    if (spinning) return false;
+    if (!window.Peer) { $("l-msg").textContent = "โหลดระบบเชื่อมต่อไม่ได้ เช็กอินเทอร์เน็ตแล้วเปิดหน้าใหม่"; return false; }
+    netStop();
+    live.isDealer = false; live.code = code; live.name = cleanName(name) || "ผู้เล่น"; live.avail = true; live.status = "กำลังเชื่อมต่อโต๊ะ…";
+    netSaved.role = "player"; netSaved.code = code; netSaved.name = live.name; netSaved.table = null; saveNet(netSaved); setHash(code);
+    live.playerRef = { set: function (body) {
+      if (net.conn && net.conn.open) { net.conn.send({ t: "state", body: body }); return Promise.resolve(); }
+      return Promise.reject({ code: "unavailable" });
+    } };
+    table = null; net.quiet = true; sync.last = ""; sync.ok = false; sync.off = false;
+    if (mode !== "live") enterLive(); else { if (bets.size) refund(); setMsg(idleMsg()); render(); }
+    joinPeer();
+    return true;
+  }
+  function joinPeer() {
+    var peer = new window.Peer(); net.peer = peer;
+    var again = function (text, ms) {
+      if (net.peer !== peer) return;
+      clearInterval(net.ping); net.peer = null; net.conn = null;
+      try { peer.destroy(); } catch (e) {}
+      setStatus(text); if (!bets.size && !spinning) setMsg(idleMsg());
+      net.retry = setTimeout(function () { if (mode === "live" && !live.isDealer && live.code && !net.peer) { net.quiet = true; joinPeer(); } }, ms);
+    };
+    peer.on("open", function () {
+      if (net.peer !== peer) return;
+      var conn = peer.connect(PREFIX + live.code, { reliable: true }); net.conn = conn;
+      conn.on("open", function () {
+        if (net.peer !== peer) return;
+        net.lastSeen = Date.now(); live.status = "";
+        conn.send({ t: "hello", pid: live.uid, name: live.name });
+        sync.last = ""; queueSync(); render();
+        clearInterval(net.ping);
+        net.ping = setInterval(function () {
+          if (Date.now() - net.lastSeen > 15000) { again("หลุดจากโต๊ะ กำลังต่อใหม่…", 1500); return; }
+          try { conn.send({ t: "ping" }); } catch (e) {}
+        }, 5000);
+      });
+      conn.on("data", function (m) {
+        if (net.peer !== peer) return;
+        net.lastSeen = Date.now();
+        if (!m || m.t !== "table") return;
+        table = normTable(m.table);
+        var q = net.quiet; net.quiet = false;
+        if (!spinning) { reconcile(q); if (!table) setMsg(idleMsg()); }
+        render();
+      });
+      conn.on("close", function () { again("หลุดจากโต๊ะ กำลังต่อใหม่…", 2000); });
+    });
+    peer.on("error", function (err) {
+      var type = err && err.type;
+      again(type === "peer-unavailable" ? "ยังไม่พบโต๊ะ " + live.code + " รอเจ้ามือเปิดหน้า…" : "เชื่อมต่อไม่ได้ กำลังลองใหม่…", 4000);
+    });
+  }
+  function tableLink() { return location.href.split("#")[0] + "#" + live.code; }
+  function renderLobby() {
+    var host = mode === "live" && live.isDealer;
+    $("l-join").hidden = host; $("l-host").hidden = !host;
+    $("l-title").textContent = host ? "รหัสห้องของคุณ" : "เล่นกับเพื่อน";
+    if (host) { $("l-show").textContent = live.code; if ($("l-link").value !== tableLink()) $("l-link").value = tableLink(); }
+  }
+  function openLobby(code) {
+    $("l-msg").textContent = "";
+    if (!$("l-name").value) $("l-name").value = live.name;
+    if (code) $("l-code").value = code;
+    $("lobby").hidden = false; renderLobby();
+  }
+  function closeLobby() { $("lobby").hidden = true; }
+  function initNet() {
+    var hc = cleanCode(location.hash.slice(1)), sc = cleanCode(netSaved.code);
+    if (netSaved.role === "dealer" && sc && (!hc || hc === sc)) hostStart(sc, netSaved.table);
+    else if (netSaved.role === "player" && sc && (!hc || hc === sc) && live.name) joinStart(sc, live.name);
+    else if (hc) openLobby(hc);
+  }
+
+  /* ---------- render ---------- */
+  var nameToken = 0;
+  function renderDealer() {
+    var round = table ? table.round : null, spun = table && table.phase === "spun";
+    var agg = new Map(), stakeAll = 0, houseRound = 0, houseTotal = 0, rows = [];
+    players.forEach(function (p) {
+      var d = p.d, vb = d.round === round ? validBets(d) : [], st = 0;
+      vb.forEach(function (e) { st += e[1]; agg.set(e[0], (agg.get(e[0]) || 0) + e[1]); });
+      stakeAll += st;
+      if (spun) {
+        if (vb.length) houseRound += st - payback(vb, table.result);
+        else if (d.lastRound === round && typeof d.lastNet === "number" && isFinite(d.lastNet)) houseRound -= d.lastNet;
+      }
+      if (typeof d.net === "number" && isFinite(d.net)) houseTotal -= d.net;
+      rows.push({ id: p.id, name: typeof d.name === "string" ? d.name : "", stake: st, balance: typeof d.balance === "number" && isFinite(d.balance) ? d.balance : null });
+    });
+    $("d-stake").textContent = fmt(stakeAll);
+    $("d-round").textContent = spun ? signed(houseRound) : "–";
+    $("d-round").style.color = spun && houseRound > 0 ? "var(--win)" : spun && houseRound < 0 ? "var(--loss)" : "";
+    $("d-total").textContent = signed(houseTotal);
+    $("d-total").style.color = houseTotal > 0 ? "var(--win)" : houseTotal < 0 ? "var(--loss)" : "";
+    $("balance").textContent = signed(houseTotal);
+    var shownRows = rows.slice(0, 30), sig = shownRows.map(function (r) { return r.id; }).join("|");
+    if (sig !== listSig) {
+      listSig = sig; rowEls = {};
+      var ul = $("d-players"); ul.textContent = "";
+      shownRows.forEach(function (row, i) {
+        var li = document.createElement("li"), nm = document.createElement("span"), st = document.createElement("span"), bl = document.createElement("span"), inp = document.createElement("input");
+        nm.className = "nm"; nm.textContent = "ผู้เล่น " + (i + 1);
+        st.className = "st"; bl.className = "bl";
+        inp.className = "num"; inp.id = "start-" + row.id; inp.inputMode = "numeric"; inp.maxLength = 7; inp.autocomplete = "off";
+        inp.placeholder = "ชิปเริ่ม"; inp.setAttribute("aria-label", "ชิปเริ่มต้นของผู้เล่น " + (i + 1));
+        inp.value = startDraft[row.id] || "";
+        inp.addEventListener("input", function () { startDraft[row.id] = inp.value; });
+        li.appendChild(nm); li.appendChild(st); li.appendChild(bl); li.appendChild(inp); ul.appendChild(li);
+        rowEls[row.id] = { nm: nm, st: st, bl: bl, inp: inp, def: nm.textContent };
+      });
+    }
+    shownRows.forEach(function (row) {
+      var el = rowEls[row.id];
+      el.nm.textContent = row.name || el.def;
+      el.st.textContent = row.stake ? "แทง " + fmt(row.stake) : "ยังไม่แทง";
+      el.bl.textContent = row.balance === null ? "" : "เหลือ " + fmt(row.balance);
+    });
+    $("d-note").hidden = rows.length > 0;
+    return agg;
+  }
+  function render() {
+    var isLive = mode === "live", dealer = isLive && live.isDealer;
+    $("bal-label").textContent = dealer ? "กำไรเจ้ามือสะสม" : "ชิปคงเหลือ";
+    $("stats-btn").textContent = dealer ? "สมุดเจ้ามือ" : "สถิติ";
+    $("reset").hidden = isLive && !!table && table.game !== null;
+    $("g-start").disabled = spinning || dealerBusy;
+    $("chips").hidden = dealer; $("tally").hidden = dealer; $("dealer").hidden = !dealer;
+    $("hint").textContent = dealer ? "ชิปบนโต๊ะคือยอดรวมที่ผู้เล่นแทงเข้ามา" : "แตะเลขเพื่อแทงเดี่ยว แตะจุดบนเส้นเพื่อแทงคร่อม มุม แถว หรือหกเลข";
+    var shown = dealer ? renderDealer() : bets;
+    if (!dealer) $("balance").textContent = fmt(state.balance);
+    spots.forEach(function (s, key) {
+      var a = shown.get(key) || 0;
+      s.badge.hidden = !a; s.badge.textContent = a ? compact(a) : "";
+      s.el.classList.toggle("has", !!a);
+    });
+    $("s-spins").textContent = fmt(state.spins) + " ตา";
+    $("s-wagered").textContent = fmt(state.wagered);
+    $("s-net").textContent = signed(state.net);
+    $("s-net").style.color = state.net > 0 ? "var(--win)" : state.net < 0 ? "var(--loss)" : "";
+    $("s-theory").textContent = state.wagered ? "−" + (state.wagered / 37 < 10 ? (state.wagered / 37).toFixed(1) : fmt(state.wagered / 37)) : "0";
+
+    var hist = isLive ? (table ? table.history : []) : state.history;
+    var h = $("history"); h.textContent = "";
+    if (!hist.length) {
+      var e = document.createElement("span"); e.className = "empty"; e.textContent = "ยังไม่มีผลย้อนหลัง"; h.appendChild(e);
+    }
+    hist.slice(0, 15).forEach(function (x) {
+      var d = document.createElement("span"); d.className = "h " + colorOf(x); d.textContent = x; h.appendChild(d);
+    });
+
+    var ok = canBet();
+    $("undo").hidden = dealer; $("clear").hidden = dealer; $("rebet").hidden = dealer;
+    $("undo").disabled = !ok || !stack.length;
+    $("clear").disabled = !ok || !bets.size;
+    $("rebet").disabled = !ok || !lastBets.length;
+    var spin = $("spin");
+    if (!isLive) {
+      spin.disabled = spinning;
+      spin.textContent = spinning ? "กำลังหมุน…" : bets.size ? "หมุน (" + fmt(staked()) + ")" : "หมุน";
+    } else if (dealer) {
+      spin.disabled = spinning || dealerBusy;
+      spin.textContent = spinning ? "กำลังหมุน…" : !table ? "เปิดโต๊ะ รับแทง" : table.phase === "open" ? "ปิดรับแทง แล้วหมุน" : "เปิดรอบใหม่";
+    } else {
+      spin.disabled = true;
+      spin.textContent = spinning ? "กำลังหมุน…" : table && table.phase === "open" ? "รอเจ้ามือหมุน" + (bets.size ? " (" + fmt(staked()) + ")" : "") : "รอเจ้ามือเปิดรอบใหม่";
+    }
+
+    var text = $("banner-text"), toggle = $("mode-toggle"), b = document.createElement("b"), rest = "";
+    text.textContent = "";
+    if (dealer) {
+      b.textContent = "เจ้ามือ · ห้อง " + live.code;
+      rest = " · " + (live.status || "ผู้เล่น " + players.length + " คน"); toggle.textContent = "เชิญเพื่อน";
+    } else if (isLive) {
+      b.textContent = "โต๊ะ " + live.code;
+      rest = " · " + (live.status || (table ? "รอบที่ " + table.round : "เชื่อมต่อแล้ว")); toggle.textContent = "ออกจากโต๊ะ";
+    } else { b.textContent = "เล่นคนเดียวอยู่"; toggle.textContent = "เล่นกับเพื่อน"; }
+    text.appendChild(b); text.appendChild(document.createTextNode(rest));
+    renderLobby();
+    save();
+  }
+
+  /* ---------- wheel ---------- */
+  var cv = $("wheel"), ctx = cv.getContext("2d");
+  var SEG = Math.PI * 2 / 37, wheelAng = 0, ballIdx = null;
+  var css = getComputedStyle(document.documentElement);
+  var C = {};
+  ["red", "red-hi", "black", "black-hi", "zero", "brass", "brass-hi", "brass-deep", "rail", "felt-deep", "ivory", "wood", "wood-hi", "wood-deep"].forEach(function (k) { C[k] = css.getPropertyValue("--" + k).trim(); });
+  function sizeCanvas() {
+    var w = cv.clientWidth || 300, d = Math.min(window.devicePixelRatio || 1, 3);
+    cv.width = Math.round(w * d); cv.height = Math.round(w * d);
+    draw(wheelAng, ballIdx === null ? null : wheelAng + ballIdx * SEG, 0.56);
+  }
+  function ring(r, fill) { ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fillStyle = fill; ctx.fill(); }
+  function draw(wa, ballAbs, ballR) {
+    var S = cv.width, R = S / 2, g;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, S, S); ctx.translate(R, R);
+    // wooden bowl
+    g = ctx.createLinearGradient(-R, -R, R, R); g.addColorStop(0, C["wood-hi"]); g.addColorStop(0.5, C.wood); g.addColorStop(1, C["wood-deep"]);
+    ring(R * 0.995, g);
+    g = ctx.createLinearGradient(-R, -R, R, R); g.addColorStop(0, C["brass-hi"]); g.addColorStop(0.5, C.brass); g.addColorStop(1, C["brass-deep"]);
+    ring(R * 0.925, g);
+    // ball track
+    g = ctx.createRadialGradient(0, 0, R * 0.78, 0, 0, R * 0.905); g.addColorStop(0, "#000"); g.addColorStop(0.5, C["wood-deep"]); g.addColorStop(1, C.wood);
+    ring(R * 0.905, g);
+    ctx.save(); ctx.rotate(wa);
+    for (var i = 0; i < 37; i++) {
+      var a0 = i * SEG - Math.PI / 2 - SEG / 2, col = colorOf(ORDER[i]);
+      ctx.beginPath(); ctx.arc(0, 0, R * 0.78, a0, a0 + SEG); ctx.arc(0, 0, R * 0.48, a0 + SEG, a0, true); ctx.closePath();
+      ctx.fillStyle = C[col]; ctx.fill();
+      ctx.strokeStyle = C.brass; ctx.lineWidth = Math.max(1, R * 0.007); ctx.stroke();
+      ctx.save(); ctx.rotate(i * SEG);
+      ctx.fillStyle = C.ivory; ctx.font = "700 " + (R * 0.082) + "px 'Chakra Petch', sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(String(ORDER[i]), 0, -R * 0.712);
+      ctx.restore();
+    }
+    // pocket well shading: darker toward the hub, so the number band reads raised
+    g = ctx.createRadialGradient(0, 0, R * 0.48, 0, 0, R * 0.65); g.addColorStop(0, "rgba(0,0,0,0.6)"); g.addColorStop(0.75, "rgba(0,0,0,0.3)"); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.65, 0, 7); ctx.arc(0, 0, R * 0.48, 0, 7, true); ctx.fillStyle = g; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.645, 0, 7); ctx.strokeStyle = C.brass; ctx.lineWidth = Math.max(1, R * 0.008); ctx.stroke();
+    // cone and turret
+    g = ctx.createRadialGradient(-R * 0.12, -R * 0.14, R * 0.02, 0, 0, R * 0.48); g.addColorStop(0, "#2b6b4f"); g.addColorStop(0.6, C["felt-deep"]); g.addColorStop(1, "#04110c");
+    ring(R * 0.48, g);
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.48, 0, 7); ctx.strokeStyle = C.brass; ctx.lineWidth = R * 0.02; ctx.stroke();
+    for (var k = 0; k < 4; k++) {
+      ctx.save(); ctx.rotate(k * Math.PI / 2 + Math.PI / 4);
+      g = ctx.createLinearGradient(-R * 0.02, 0, R * 0.02, 0); g.addColorStop(0, C["brass-deep"]); g.addColorStop(0.5, C["brass-hi"]); g.addColorStop(1, C["brass-deep"]);
+      ctx.fillStyle = g; ctx.fillRect(-R * 0.016, -R * 0.47, R * 0.032, R * 0.14);
+      ctx.restore();
+    }
+    ctx.restore();
+    // static light from the top left
+    g = ctx.createLinearGradient(-R * 0.7, -R * 0.7, R * 0.5, R * 0.5); g.addColorStop(0, "rgba(255,255,255,0.16)"); g.addColorStop(0.45, "rgba(255,255,255,0)"); g.addColorStop(1, "rgba(0,0,0,0.22)");
+    ring(R * 0.925, g);
+    if (ballAbs !== null && ballAbs !== undefined) {
+      var bx = Math.sin(ballAbs) * R * ballR, by = -Math.cos(ballAbs) * R * ballR, br = R * 0.036;
+      ctx.beginPath(); ctx.arc(bx + br * 0.35, by + br * 0.5, br, 0, 7); ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fill();
+      g = ctx.createRadialGradient(bx - br * 0.35, by - br * 0.35, br * 0.1, bx, by, br); g.addColorStop(0, "#ffffff"); g.addColorStop(1, "#b9b9b4");
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, 7); ctx.fillStyle = g; ctx.fill();
+    }
+  }
+  function spinTo(idx, done) {
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var dur = reduce ? 700 : 5200, t0 = performance.now(), w0 = wheelAng;
+    var turnsW = Math.PI * 2 * (reduce ? 0.5 : 2.5), K = Math.PI * 2 * (reduce ? 1 : 7);
+    function frame(now) {
+      var t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+      wheelAng = w0 + e * turnsW;
+      var u = t < 0.7 ? 0 : (t - 0.7) / 0.3, drop = u * u * (3 - 2 * u);
+      draw(wheelAng, wheelAng + idx * SEG + (1 - e) * K, 0.845 - 0.285 * drop);
+      if (t < 1) requestAnimationFrame(frame);
+      else { wheelAng = wheelAng % (Math.PI * 2); ballIdx = idx; done(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  window.addEventListener("resize", sizeCanvas);
+  if (window.ResizeObserver) new ResizeObserver(function () { if (!spinning) sizeCanvas(); }).observe(cv.parentNode);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeCanvas);
+
+  /* ---------- controls ---------- */
+  $("chips").addEventListener("click", function (ev) {
+    var b = ev.target.closest(".chip"); if (!b) return;
+    chip = Number(b.dataset.v);
+    document.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+  });
+  $("undo").addEventListener("click", undo);
+  $("clear").addEventListener("click", clearBets);
+  $("rebet").addEventListener("click", rebet);
+  $("spin").addEventListener("click", function () { if (mode === "live") dealerAct(); else soloSpin(); });
+  $("mode-toggle").addEventListener("click", function () { if (mode === "live" && !live.isDealer) leaveLive(); else openLobby(); });
+  $("l-close").addEventListener("click", closeLobby);
+  $("lobby").addEventListener("click", function (ev) { if (ev.target === $("lobby")) closeLobby(); });
+  $("l-join-btn").addEventListener("click", function () {
+    var code = cleanCode($("l-code").value);
+    if (!code) { $("l-msg").textContent = "รหัสห้องมี 4 ตัว ดูจากลิงก์ที่เจ้ามือส่งให้"; return; }
+    if (spinning) { $("l-msg").textContent = "รอให้ลูกหยุดก่อน แล้วกดอีกครั้ง"; return; }
+    if (joinStart(code, $("l-name").value)) closeLobby();
+  });
+  $("l-host-btn").addEventListener("click", function () {
+    if (spinning) { $("l-msg").textContent = "รอให้ลูกหยุดก่อน แล้วกดอีกครั้ง"; return; }
+    live.name = cleanName($("l-name").value); netSaved.name = live.name;
+    hostStart(newCode(), null);
+  });
+  $("l-copy").addEventListener("click", function () {
+    var done = function () { $("l-msg").textContent = "คัดลอกลิงก์แล้ว ส่งให้เพื่อนได้เลย"; };
+    var manual = function () { $("l-link").focus(); $("l-link").select(); $("l-msg").textContent = "คัดลอกอัตโนมัติไม่ได้ กดค้างที่ลิงก์แล้วเลือกคัดลอก"; };
+    try { navigator.clipboard.writeText(tableLink()).then(done, manual); } catch (e) { manual(); }
+  });
+  $("l-end").addEventListener("click", function () { if (spinning) return; leaveLive(); closeLobby(); });
+  $("g-start").addEventListener("click", newGame);
+  $("reset").addEventListener("click", function () {
+    if (spinning || $("reset").hidden) return;
+    if (bets.size && mode === "live") { setMsg("ล้างชิปที่แทงอยู่ก่อน แล้วค่อยเริ่มใหม่"); return; }
+    bets.clear(); stack = []; lastBets = []; betsRound = null; lastRoundNet = null; lastRound = null;
+    state.balance = START; state.spins = 0; state.wagered = 0; state.net = 0; state.history = [];
+    if (mode !== "live") { clearHit(); $("readout").textContent = ""; }
+    setMsg("เริ่มใหม่แล้ว " + idleMsg()); render(); queueSync();
+  });
+  function showTab(play) {
+    $("view-play").hidden = !play; $("view-train").hidden = play;
+    $("tab-play").setAttribute("aria-selected", play ? "true" : "false");
+    $("tab-train").setAttribute("aria-selected", play ? "false" : "true");
+    if (play) sizeCanvas(); else if (!question) newQuestion();
+  }
+  $("tab-play").addEventListener("click", function () { showTab(true); });
+  $("tab-train").addEventListener("click", function () { showTab(false); });
+
+  /* ---------- dealer trainer ---------- */
+  var TYPES = [["เดี่ยว", 35], ["คร่อม", 17], ["แถว", 11], ["มุม", 8], ["หกเลข", 5]];
+  var tmode = "times", question = null, qStart = 0, qTick = null, answered = false;
+  function ri(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function newQuestion() {
+    var items = [];
+    if (tmode === "times") {
+      var t = Math.random() < 0.6 ? TYPES[0] : TYPES[1];
+      items.push([t[0], t[1], ri(2, 20)]);
+    } else {
+      var max = [4, 4, 2, 4, 2];
+      while (items.length < 2) {
+        items = [];
+        TYPES.forEach(function (t, i) { var c = ri(0, max[i]); if (c) items.push([t[0], t[1], c]); });
+      }
+    }
+    var ans = 0; items.forEach(function (it) { ans += it[1] * it[2]; });
+    question = { items: items, answer: ans }; answered = false;
+    var ul = $("q-items"); ul.textContent = "";
+    items.forEach(function (it) {
+      var li = document.createElement("li"), s = document.createElement("span"), b = document.createElement("b");
+      s.textContent = it[0]; b.textContent = it[2] + " ชิป"; li.appendChild(s); li.appendChild(b); ul.appendChild(li);
+    });
+    $("q-answer").value = ""; $("q-answer").disabled = false; $("q-submit").disabled = false;
+    $("q-feedback").textContent = ""; $("q-submit").textContent = "ตรวจ";
+    qStart = performance.now(); clearInterval(qTick);
+    qTick = setInterval(function () { $("q-timer").textContent = ((performance.now() - qStart) / 1000).toFixed(1) + " วิ"; }, 100);
+    renderTrain();
+    try { $("q-answer").focus({ preventScroll: true }); } catch (e) {}
+  }
+  function renderTrain() {
+    $("t-score").textContent = state.tScore + "/" + state.tTotal;
+    $("t-streak").textContent = state.tStreak;
+    $("t-best").textContent = state.tBest === null ? "–" : state.tBest.toFixed(1);
+  }
+  $("q-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!question) return;
+    if (answered) { newQuestion(); return; }
+    var raw = $("q-answer").value.trim();
+    if (!/^\d+$/.test(raw)) { $("q-feedback").textContent = "พิมพ์คำตอบเป็นตัวเลขก่อน"; return; }
+    answered = true; clearInterval(qTick);
+    var secs = (performance.now() - qStart) / 1000, ok = Number(raw) === question.answer;
+    state.tTotal++;
+    if (ok) { state.tScore++; state.tStreak++; if (state.tBest === null || secs < state.tBest) state.tBest = Math.round(secs * 10) / 10; }
+    else state.tStreak = 0;
+    var work = question.items.map(function (it) { return it[2] + "×" + it[1] + " = " + (it[1] * it[2]); }).join("  ·  ");
+    if (question.items.length > 1) work += "  →  รวม " + question.answer;
+    var fb = $("q-feedback"); fb.textContent = "";
+    var head = document.createElement("span"); head.className = ok ? "ok" : "no";
+    head.textContent = ok ? "ถูก ใช้เวลา " + secs.toFixed(1) + " วิ" : "ยังไม่ถูก คำตอบคือ " + question.answer;
+    var w = document.createElement("span"); w.className = "work"; w.textContent = work;
+    fb.appendChild(head); fb.appendChild(w);
+    $("q-answer").disabled = true; $("q-submit").textContent = "ข้อต่อไป";
+    renderTrain(); save();
+    try { $("q-submit").focus({ preventScroll: true }); } catch (e) {}
+  });
+  $("stats-btn").addEventListener("click", function () { $("sheet").classList.add("open"); });
+  $("sheet-close").addEventListener("click", function () { $("sheet").classList.remove("open"); });
+  $("sheet").addEventListener("click", function (ev) { if (ev.target === $("sheet")) $("sheet").classList.remove("open"); });
+  function setTMode(m) {
+    tmode = m;
+    $("mode-times").setAttribute("aria-pressed", m === "times" ? "true" : "false");
+    $("mode-mix").setAttribute("aria-pressed", m === "mix" ? "true" : "false");
+    newQuestion();
+  }
+  $("mode-times").addEventListener("click", function () { setTMode("times"); });
+  $("mode-mix").addEventListener("click", function () { setTMode("mix"); });
+
+  if (state.history.length) {
+    ballIdx = ORDER.indexOf(state.history[0]);
+    $("readout").textContent = state.history[0]; $("readout").className = colorOf(state.history[0]);
+  }
+  if (bets.size) setMsg(stakeMsg());
+  render(); sizeCanvas();
+  initNet();
+})();
+</script>
+</body>
+</html>
