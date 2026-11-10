@@ -6,7 +6,6 @@
 <title>รูเลตซ้อมมือ</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Sarabun:wght@400;600&display=swap">
 <style>
-/* Layout: a felt table set in a wooden rail. Wheel and tally on one side, betting layout on the other; one column on phones with the action bar pinned to the bottom. Single dark look by choice. */
 :root {
   color-scheme: dark;
   --felt: #17553a;
@@ -36,81 +35,119 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { background: var(--felt-deep); height: 100%; padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px); }
+html { background: var(--felt-deep); height: 100%; height: 100dvh; }
 body {
-  background: radial-gradient(120% 80% at 50% 0%, #123c2c 0%, var(--felt-deep) 55%, var(--rail) 100%) fixed var(--felt-deep);
   margin: 0;
+  background: radial-gradient(120% 80% at 50% 0%, #123c2c 0%, var(--felt-deep) 55%, var(--rail) 100%) fixed var(--felt-deep);
   color: var(--ivory);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 10px 0;
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
 }
-button { font: inherit; color: inherit; cursor: pointer; }
+/* The stage holds the whole game. On an upright phone it is turned a quarter turn so the table always plays sideways. */
+.stage { height: 100%; overflow-x: hidden; overflow-y: auto; padding: calc(6px + env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(10px, env(safe-area-inset-left, 0px)); }
+html.rot .stage { position: fixed; top: 0; left: 0; width: 100vh; width: 100dvh; height: 100vw; transform-origin: top left; transform: rotate(90deg) translateY(-100%); padding: 6px max(10px, env(safe-area-inset-bottom, 0px)) 0 max(10px, env(safe-area-inset-top, 0px)); }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 button:disabled { cursor: not-allowed; opacity: 0.45; }
 :focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 2px; }
-.app { max-width: 1040px; height: 100%; min-height: 540px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
-.view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+/* Layout: one screen. Top bar, status line, the felt table filling the rest, chips and actions at the bottom.
+   Portrait stacks the table 3 wide by 12 tall; landscape lays it 12 wide by 3 tall. The wheel appears only while spinning. */
+.app { max-width: 1100px; height: 100%; min-height: 300px; margin: 0 auto; display: flex; flex-direction: column; gap: 6px; }
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
 
-.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
-.top > div:first-child { min-width: 0; }
-.bal { flex: none; }
-h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; line-height: 1.15; margin: 0; letter-spacing: 0.01em; text-wrap: balance; text-shadow: 0 2px 0 var(--shade); }
-.sub { margin: 2px 0 0; color: var(--muted); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bal { text-align: right; }
-.lab { display: block; color: var(--muted); font-size: 0.75rem; letter-spacing: 0.04em; }
-.bal output { font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; line-height: 1.1; color: var(--brass); font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 var(--shade); }
-
-.tabs { display: flex; gap: 6px; background: var(--rail); padding: 4px; border-radius: 10px; box-shadow: inset 0 2px 6px var(--shade); }
-.tabs button { flex: 1; border: 0; background: transparent; padding: 6px 8px; border-radius: 7px; font-family: var(--font-display); font-weight: 500; color: var(--muted); }
+.top { flex: none; display: flex; align-items: center; gap: 10px; }
+.brand { flex: 1; min-width: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; line-height: 1.15; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 0 var(--shade); }
+.sub { display: none; margin: 0; color: var(--muted); font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tabs { flex: none; display: flex; gap: 4px; background: var(--rail); padding: 3px; border-radius: 9px; box-shadow: inset 0 2px 6px var(--shade); }
+.tabs button { border: 0; background: transparent; padding: 6px 10px; border-radius: 6px; font-family: var(--font-display); font-weight: 500; font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
 .tabs button[aria-selected="true"] { background: linear-gradient(var(--felt-hi), var(--felt)); color: var(--ivory); box-shadow: 0 2px 4px var(--shade); }
+.bal { flex: none; text-align: right; line-height: 1.1; }
+.lab { display: block; color: var(--muted); font-size: 0.7rem; letter-spacing: 0.04em; }
+.bal output { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; color: var(--brass); font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 var(--shade); }
 
-.banner { flex: none; display: flex; gap: 10px; align-items: center; justify-content: space-between; background: var(--rail); border: 1px solid var(--brass-deep); border-radius: 10px; padding: 5px 12px; font-size: 0.85rem; }
+.status { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.banner { flex: 1 1 100%; min-width: 0; display: flex; gap: 8px; align-items: center; justify-content: space-between; background: var(--rail); border: 1px solid var(--brass-deep); border-radius: 8px; padding: 2px 10px; font-size: 0.82rem; }
 .banner p { margin: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.banner .link { flex: none; }
 .banner b { font-family: var(--font-display); color: var(--brass); }
-.link { background: none; border: 0; color: var(--brass); text-decoration: underline; padding: 4px 0; font-size: 0.85rem; }
-
-.play-grid { flex: 1; min-height: 0; display: grid; gap: 6px 10px; grid-template-columns: 104px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: "wheel info" "wheel chips" "table table"; }
-.col { display: contents; }
-.info { grid-area: info; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.hrow { display: flex; gap: 8px; align-items: center; min-width: 0; }
-
-.wheel-wrap { grid-area: wheel; align-self: center; flex: none; container-type: inline-size; position: relative; width: 104px; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6), 0 2px 0 var(--wood-hi) inset; }
-.wheel-wrap canvas { width: 100%; height: 100%; display: block; }
-.readout { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
-.readout span { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; font-size: 22cqw; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 2px 4px #000; }
-.readout .red { color: #ff8479; }
-.readout .black { color: var(--ivory); }
-.readout .zero { color: var(--win); }
-
-.msg { min-height: 2.7em; margin: 0; font-size: 0.88rem; line-height: 1.35; }
+.link { flex: none; background: none; border: 0; color: var(--brass); text-decoration: underline; padding: 6px 0; font-size: 0.85rem; white-space: nowrap; }
+#snd-btn[aria-pressed="false"] { color: var(--muted); text-decoration: line-through; }
+.msg { flex: 1 1 0; min-width: 0; margin: 0; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .msg strong { font-family: var(--font-display); }
 .msg .win { color: var(--win); }
 .msg .loss { color: var(--loss); }
-
-.history { flex: 1; min-width: 0; overflow: hidden; display: flex; gap: 4px; min-height: 28px; align-items: center; }
-.history .h { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums; border: 1px solid var(--line); box-shadow: 0 2px 3px var(--shade), inset 0 1px 0 rgba(255, 255, 255, 0.18); }
-.history .empty { color: var(--muted); font-size: 0.85rem; }
+.history { flex: 0 1 auto; min-width: 0; max-width: 45%; overflow: hidden; display: flex; gap: 4px; align-items: center; min-height: 32px; }
+.history .h { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums; border: 1px solid var(--line); box-shadow: 0 2px 3px var(--shade), inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+.history .h:first-child { width: 32px; height: 32px; font-size: 0.95rem; border: 2px solid var(--brass-hi); }
+.history .empty { color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
 .h.red { background: var(--red); }
 .h.black { background: var(--black); }
 .h.zero { background: var(--zero); }
 
-.sheet { position: fixed; inset: 0; z-index: 20; display: none; place-items: center; background: rgba(0, 0, 0, 0.7); padding: calc(16px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.rail { flex: 1; min-height: 0; display: flex; padding: 6px; border-radius: 14px; background: linear-gradient(145deg, var(--wood-hi) 0%, var(--wood) 30%, var(--wood-deep) 100%); box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55), inset 0 2px 0 rgba(255, 255, 255, 0.22), inset 0 -3px 0 rgba(0, 0, 0, 0.45); }
+.layout { flex: 1; min-width: 0; min-height: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 12fr) minmax(0, 1fr) minmax(0, 2fr); border-radius: 9px; padding: 4px; user-select: none; -webkit-user-select: none;
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 2px, transparent 2px 5px), radial-gradient(130% 90% at 30% 10%, var(--felt-hi), var(--felt) 55%, #0f3c29 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 6px 18px rgba(0, 0, 0, 0.6); }
+.cell { position: relative; border: 1px solid var(--line); background: transparent; padding: 0; min-width: 0; min-height: 0; line-height: 1; font-family: var(--font-display); font-weight: 700; font-size: clamp(0.8rem, 4.2vmin, 1.2rem); font-variant-numeric: tabular-nums; display: grid; place-items: center; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); }
+.cell.out { font-size: clamp(0.7rem, 3.4vmin, 0.95rem); font-weight: 500; background: rgba(0, 0, 0, 0.12); }
+.cell.red { background: linear-gradient(160deg, var(--red-hi), var(--red) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.35); }
+.cell.black { background: linear-gradient(160deg, var(--black-hi), var(--black) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.5); }
+.cell.zero { background: linear-gradient(160deg, #35b06a, var(--zero) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.35); border-radius: 14px 14px 0 0; }
+.cell.hit { box-shadow: inset 0 0 0 3px var(--brass-hi), 0 0 14px var(--brass); z-index: 1; }
+.zero-row { grid-column: 2; grid-row: 1; display: grid; }
+.dozens { grid-column: 1; grid-row: 2; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.dozens .cell { writing-mode: vertical-rl; }
+.nums { grid-column: 2; grid-row: 2; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(12, minmax(0, 1fr)); }
+.nums .cell { grid-column: var(--pc); grid-row: var(--pr); }
+.cols { grid-column: 2; grid-row: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.evens { grid-column: 1 / -1; grid-row: 4; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.spot { position: absolute; left: var(--px); top: var(--py); width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 0; background: transparent; padding: 0; z-index: 2; display: grid; place-items: center; }
+.spot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ivory); opacity: 0.45; }
+.spot.has::before { display: none; }
+.stack { position: absolute; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 11px; color: #1b1404; font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; display: grid; place-items: center; pointer-events: none; font-variant-numeric: tabular-nums; writing-mode: horizontal-tb; text-shadow: none;
+  background: radial-gradient(circle at 50% 30%, var(--brass-hi), var(--brass) 70%); border: 1.5px dashed #5a4312; box-shadow: 0 2px 0 var(--brass-deep), 0 4px 0 #5a4312, 0 6px 6px rgba(0, 0, 0, 0.6); }
+.cell .stack { right: 3px; top: 50%; margin-top: -12px; }
+.spot .stack { position: static; }
+
+.controls { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 12px; padding-block: 2px 8px; }
+.chips { flex: none; display: flex; gap: 10px; align-items: center; padding-block: 4px; }
+.chip { --c: var(--slate); flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; padding: 0; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; font-variant-numeric: tabular-nums; color: var(--ivory); text-shadow: 0 1px 2px #000;
+  background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.22), transparent 46%), radial-gradient(circle, var(--c) 0 55%, rgba(243, 236, 217, 0.85) 56% 59%, transparent 60%), repeating-conic-gradient(var(--ivory) 0 15deg, var(--c) 15deg 45deg);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.55), 0 6px 10px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.12s; }
+.chip[data-v="5"] { --c: var(--red); }
+.chip[data-v="25"] { --c: var(--zero); }
+.chip[data-v="100"] { --c: var(--black); }
+.chip[aria-pressed="true"] { transform: translateY(-4px); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.55), 0 10px 12px rgba(0, 0, 0, 0.55), 0 0 0 3px var(--brass); }
+.acts { flex: 1 1 320px; min-width: 0; display: flex; gap: 6px; align-items: center; }
+.btn { border: 1px solid var(--line); background: linear-gradient(var(--felt-hi), var(--felt)); border-radius: 8px; padding: 8px 10px; min-height: 46px; font-family: var(--font-display); font-weight: 500; white-space: nowrap; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5); }
+.btn.primary { flex: 1; background: linear-gradient(var(--brass-hi), var(--brass) 45%, var(--brass-deep)); color: #1b1404; border-color: var(--brass-deep); font-weight: 700; font-size: 1.05rem; white-space: normal; }
+.staked { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+
+/* The wheel: shown over the table only while a spin runs */
+.wheel-ov { position: fixed; inset: 0; z-index: 25; display: grid; place-items: center; background: rgba(0, 0, 0, 0.66); }
+.wheel-wrap { position: relative; container-type: inline-size; width: min(82vw, 76vh, 440px); aspect-ratio: 1; border-radius: 50%; box-shadow: 0 14px 28px rgba(0, 0, 0, 0.6); }
+.wheel-wrap canvas { width: 100%; height: 100%; display: block; }
+.readout { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.readout span { font-family: var(--font-display); font-weight: 700; font-size: 3rem; font-size: 22cqw; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 2px 4px #000; }
+.readout .red { color: #ff8479; }
+.readout .black { color: var(--ivory); }
+.readout .zero { color: var(--win); }
+
+/* Sheets and dialogs */
+.sheet, .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0, 0, 0, 0.72); padding: calc(12px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+.sheet { z-index: 20; display: none; }
 .sheet.open { display: grid; }
-.sheet-in { width: min(100%, 420px); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
-.modal { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(0, 0, 0, 0.72); padding: 16px; }
-.modal-in { width: min(100%, 400px); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+.modal { z-index: 30; }
+.sheet-in, .modal-in { width: min(100%, 460px); max-height: 100%; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
 .modal-in > div { display: flex; flex-direction: column; gap: 8px; }
-.modal .btn.primary { flex: none; }
+.modal .btn.primary, .sheet .btn.primary { flex: none; }
 .modal .setrow { grid-template-columns: minmax(0, 1fr) 150px; }
 .modal .note { margin: 0; }
-.code { margin: 0; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 2.4rem; letter-spacing: 0.3em; color: var(--brass); }
+.code { margin: 0; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 2.2rem; letter-spacing: 0.3em; color: var(--brass); }
 .panel { background: linear-gradient(#0a2219, var(--rail)); border: 1px solid rgba(243, 236, 217, 0.12); border-radius: 10px; padding: 12px 14px; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35); }
 .panel dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; }
 .panel dt { color: var(--muted); font-size: 0.9rem; }
@@ -119,8 +156,8 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
 .panel .row { display: flex; justify-content: flex-end; margin-top: 8px; }
 .panel h2 { font-family: var(--font-display); font-size: 1rem; margin: 0 0 8px; }
 .plist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.plist li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto 78px; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px solid rgba(243, 236, 217, 0.12); font-variant-numeric: tabular-nums; }
-.num { width: 100%; min-width: 0; font: inherit; font-family: var(--font-display); font-variant-numeric: tabular-nums; padding: 5px 8px; min-height: 36px; border-radius: 7px; border: 1px solid var(--line); background: var(--felt-deep); color: var(--ivory); }
+.plist li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto 84px; gap: 10px; align-items: center; padding: 6px 0; border-top: 1px solid rgba(243, 236, 217, 0.12); font-variant-numeric: tabular-nums; }
+.num { width: 100%; min-width: 0; font: inherit; font-size: 16px; font-family: var(--font-display); font-variant-numeric: tabular-nums; padding: 6px 8px; min-height: 42px; border-radius: 7px; border: 1px solid var(--line); background: var(--felt-deep); color: var(--ivory); }
 .setup { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
 .setup h2, .setup .note { margin: 0; }
 .setrow { display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: 10px; align-items: center; }
@@ -128,47 +165,6 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
 .plist .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .plist .st { font-family: var(--font-display); color: var(--brass); }
 .plist .bl { font-family: var(--font-display); color: var(--muted); font-size: 0.85rem; }
-
-.chips { grid-area: chips; display: flex; gap: 8px; align-items: center; padding-bottom: 5px; }
-.chip { --c: var(--slate); flex: none; width: 40px; height: 40px; font-size: 0.85rem; border-radius: 50%; border: 0; padding: 0; font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ivory); text-shadow: 0 1px 2px #000;
-  background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.22), transparent 46%), radial-gradient(circle, var(--c) 0 55%, rgba(243, 236, 217, 0.85) 56% 59%, transparent 60%), repeating-conic-gradient(var(--ivory) 0 15deg, var(--c) 15deg 45deg);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55), 0 8px 12px rgba(0, 0, 0, 0.5), inset 0 0 0 2px rgba(0, 0, 0, 0.3);
-  transition: transform 0.12s; }
-.chip[data-v="5"] { --c: var(--red); }
-.chip[data-v="25"] { --c: var(--zero); }
-.chip[data-v="100"] { --c: var(--black); }
-.chip[aria-pressed="true"] { transform: translateY(-5px); box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55), 0 12px 14px rgba(0, 0, 0, 0.55), 0 0 0 3px var(--brass); }
-.hint { display: none; margin: 0; color: var(--muted); font-size: 0.82rem; text-align: center; }
-
-.rail { grid-area: table; min-height: 0; display: flex; padding: 6px; border-radius: 14px; background: linear-gradient(145deg, var(--wood-hi) 0%, var(--wood) 30%, var(--wood-deep) 100%); box-shadow: 0 16px 30px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.22), inset 0 -3px 0 rgba(0, 0, 0, 0.45); }
-.layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 12fr) minmax(0, 1fr) minmax(0, 2fr); border-radius: 9px; padding: 4px; user-select: none; -webkit-user-select: none;
-  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.022) 0 2px, transparent 2px 5px), radial-gradient(130% 90% at 30% 10%, var(--felt-hi), var(--felt) 55%, #0f3c29 100%);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 6px 18px rgba(0, 0, 0, 0.6); }
-.cell { position: relative; border: 1px solid var(--line); background: transparent; padding: 0; min-height: 0; line-height: 1; font-family: var(--font-display); font-weight: 700; font-size: clamp(0.78rem, 2.4vh, 1.05rem); font-variant-numeric: tabular-nums; display: grid; place-items: center; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); }
-.cell.out { font-size: clamp(0.68rem, 2vh, 0.88rem); font-weight: 500; background: rgba(0, 0, 0, 0.12); }
-.cell.red { background: linear-gradient(160deg, var(--red-hi), var(--red) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.35); }
-.cell.black { background: linear-gradient(160deg, var(--black-hi), var(--black) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.5); }
-.cell.zero { background: linear-gradient(160deg, #35b06a, var(--zero) 55%); box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.35); border-radius: 14px 14px 0 0; }
-.cell.hit { box-shadow: inset 0 0 0 3px var(--brass-hi), 0 0 14px var(--brass); z-index: 1; }
-.zero-row { grid-column: 2; display: grid; }
-.dozens { grid-column: 1; grid-row: 2; display: grid; grid-template-rows: repeat(3, 1fr); }
-.dozens .cell { writing-mode: vertical-rl; }
-.nums { grid-column: 2; grid-row: 2; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(12, minmax(0, 1fr)); }
-.cols { grid-column: 2; grid-row: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.evens { grid-column: 1 / -1; grid-row: 4; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); }
-.spot { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; border: 0; background: transparent; padding: 0; z-index: 2; display: grid; place-items: center; }
-.spot::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--ivory); opacity: 0.4; }
-.spot.has::before { display: none; }
-.stack { position: absolute; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 10px; color: #1b1404; font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; display: grid; place-items: center; pointer-events: none; font-variant-numeric: tabular-nums; writing-mode: horizontal-tb; text-shadow: none;
-  background: radial-gradient(circle at 50% 30%, var(--brass-hi), var(--brass) 70%); border: 1.5px dashed #5a4312; box-shadow: 0 2px 0 var(--brass-deep), 0 4px 0 #5a4312, 0 6px 6px rgba(0, 0, 0, 0.6); }
-.cell .stack { right: 3px; top: 50%; margin-top: -11px; }
-.spot .stack { position: static; }
-
-.actions { flex: none; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; padding-block: 8px 10px; }
-.btn { border: 1px solid var(--line); background: linear-gradient(var(--felt-hi), var(--felt)); border-radius: 8px; padding: 8px 10px; min-height: 44px; font-family: var(--font-display); font-weight: 500; white-space: nowrap; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5); }
-.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5); }
-.btn.primary { flex: 1; background: linear-gradient(var(--brass-hi), var(--brass) 45%, var(--brass-deep)); color: #1b1404; border-color: var(--brass-deep); font-weight: 700; font-size: 1.05rem; white-space: normal; }
-.staked { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 
 /* Trainer */
 .train { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; max-width: 520px; margin: 0 auto; width: 100%; padding-bottom: 10px; }
@@ -199,124 +195,94 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
 .cheat table { width: 100%; border-collapse: collapse; margin-top: 8px; font-variant-numeric: tabular-nums; }
 .cheat td { padding: 5px 0; border-top: 1px solid var(--line); }
 .cheat td:last-child { text-align: right; font-family: var(--font-display); }
-@media (min-width: 820px) {
-  h1 { font-size: 1.6rem; }
-  .sub { font-size: 0.85rem; }
-  .bal output { font-size: 1.7rem; }
-  .play-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1fr); grid-template-areas: none; gap: 16px; }
-  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
-  .wheel-wrap, .info, .chips, .rail { grid-area: auto; }
-  .wheel-wrap { width: min(100%, 290px, 34vh); margin: 0 auto; }
-  .msg { text-align: center; font-size: 1rem; }
-  .sheet { position: static; display: block; background: none; padding: 0; flex: 1 1 auto; min-height: 0; overflow: auto; }
-  .sheet-in { width: auto; max-height: none; overflow: visible; }
-  .only-narrow { display: none; }
-  .chips { justify-content: center; gap: 12px; }
+
+/* Sideways table (class set by script: real landscape, or the turned stage): 12 columns by 3 rows, like a real layout */
+.land .status { flex-wrap: nowrap; }
+.land .banner { flex: 0 1 auto; max-width: 42%; }
+.land .msg { text-align: center; }
+.land .rail { max-height: 600px; }
+.land .layout { grid-template-columns: minmax(0, 1fr) minmax(0, 12fr) minmax(0, 1fr); grid-template-rows: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1fr); }
+.land .cell { font-size: clamp(1.15rem, 6.4vmin, 1.7rem); }
+.land .cell.out { font-size: clamp(0.9rem, 4.4vmin, 1.15rem); font-weight: 700; }
+.land .zero-row { grid-column: 1; grid-row: 1; }
+.land .cell.zero { border-radius: 14px 0 0 14px; }
+.land .nums { grid-column: 2; grid-row: 1; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.land .nums .cell { grid-column: var(--lc); grid-row: var(--lr); }
+.land .cols { grid-column: 3; grid-row: 1; grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(3, minmax(0, 1fr)); }
+.land .cols .cell:nth-child(1) { grid-row: 3; }
+.land .cols .cell:nth-child(2) { grid-row: 2; }
+.land .cols .cell:nth-child(3) { grid-row: 1; }
+.land .dozens { grid-column: 2; grid-row: 2; grid-template-rows: minmax(0, 1fr); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.land .dozens .cell { writing-mode: horizontal-tb; }
+.land .evens { grid-column: 2; grid-row: 3; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); }
+.land .spot { left: var(--lx); top: var(--ly); width: 20px; height: 20px; margin: -10px 0 0 -10px; }
+.land .cell .stack { right: 1px; top: 1px; margin-top: 0; }
+.land .controls { flex-wrap: nowrap; }
+.land .acts { flex: 1 1 0; }
+.rot .wheel-wrap { width: min(76vw, 82vh, 440px); }
+@media (min-width: 700px) and (min-height: 520px) {
+  h1 { font-size: 1.5rem; }
+  .sub { display: block; }
+  .bal output { font-size: 1.6rem; }
+  .tabs button { padding: 8px 14px; }
   .chip { width: 50px; height: 50px; font-size: 1rem; }
-  .hint { display: block; }
-  .rail { flex: 1 1 auto; padding: 10px; border-radius: 18px; max-height: 780px; }
-  .layout { padding: 8px; grid-template-columns: 52px minmax(0, 1fr); }
-  .spot { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+  .rail { padding: 10px; border-radius: 18px; }
+  .layout { padding: 8px; }
+  .spot { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+  .app { gap: 10px; } .view { gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .chip, .btn { transition: none; } }
 </style>
 </head>
 <body>
-
+<div class="stage">
 <div class="app">
   <header class="top">
-    <div>
+    <div class="brand">
       <h1>รูเลตซ้อมมือ</h1>
       <p class="sub">ชิปสมมุติ ไม่ใช่เงินจริง · วงล้อยุโรป เลข 0 ตัวเดียว</p>
     </div>
+    <nav class="tabs" role="tablist" aria-label="โหมด">
+      <button id="tab-play" role="tab" aria-selected="true" aria-controls="view-play">เล่นโต๊ะ</button>
+      <button id="tab-train" role="tab" aria-selected="false" aria-controls="view-train">ฝึกคิดเลข</button>
+    </nav>
     <div class="bal"><span class="lab" id="bal-label">ชิปคงเหลือ</span><output id="balance">1,000</output></div>
   </header>
 
-  <nav class="tabs" role="tablist" aria-label="โหมด">
-    <button id="tab-play" role="tab" aria-selected="true" aria-controls="view-play">เล่นโต๊ะ</button>
-    <button id="tab-train" role="tab" aria-selected="false" aria-controls="view-train">ฝึกคิดเลขดีลเลอร์</button>
-  </nav>
-
   <section class="view" id="view-play" role="tabpanel" aria-labelledby="tab-play">
-    <div class="banner" id="banner">
-      <p id="banner-text"></p>
-      <button class="link" id="mode-toggle" type="button">เล่นกับเพื่อน</button>
-    </div>
-    <div class="play-grid">
-      <div class="col">
-        <div class="wheel-wrap">
-          <canvas id="wheel" aria-label="วงล้อรูเลต"></canvas>
-          <div class="readout"><span id="readout"></span></div>
-        </div>
-        <div class="info">
-          <p class="msg" id="msg" aria-live="polite">วางชิปบนโต๊ะ แล้วกดหมุน</p>
-          <div class="hrow">
-            <div class="history" id="history" aria-label="ผลย้อนหลัง"></div>
-            <button class="link only-narrow" id="stats-btn" type="button">สถิติ</button>
-          </div>
-        </div>
-
-        <div class="sheet" id="sheet"><div class="sheet-in">
-        <div class="panel" id="tally">
-          <dl>
-            <dt>เล่นไปแล้ว</dt><dd id="s-spins">0 ตา</dd>
-            <dt>ยอดแทงรวม</dt><dd id="s-wagered">0</dd>
-            <dt>ผลจริง</dt><dd id="s-net">0</dd>
-            <dt>ตามทฤษฎีควรเสีย</dt><dd id="s-theory">0</dd>
-          </dl>
-          <p class="note">ทฤษฎี = ยอดแทงรวม ÷ 37 (เจ้ามือได้เปรียบ 2.7%) ยิ่งเล่นมาก ผลจริงยิ่งวิ่งเข้าหาเลขนี้</p>
-          <div class="row"><button class="link" id="reset" type="button">เริ่มใหม่ 1,000 ชิป</button></div>
-        </div>
-
-        <div class="panel" id="dealer" hidden>
-          <h2>สมุดเจ้ามือ</h2>
-          <dl>
-            <dt>ยอดแทงรอบนี้</dt><dd id="d-stake">0</dd>
-            <dt>ผลเจ้ามือรอบนี้</dt><dd id="d-round">–</dd>
-            <dt>กำไรเจ้ามือสะสม</dt><dd id="d-total">0</dd>
-          </dl>
-          <ul class="plist" id="d-players"></ul>
-          <p class="note" id="d-note">ยังไม่มีผู้เล่นเข้าโต๊ะ กด “เชิญเพื่อน” ด้านบนเพื่อส่งลิงก์</p>
-          <div class="setup">
-            <h2>ตั้งเกมใหม่</h2>
-            <div class="setrow">
-              <label class="lab" for="g-def">ชิปเริ่มต้นของทุกคน</label>
-              <input class="num" id="g-def" inputmode="numeric" autocomplete="off" maxlength="7" value="1000">
-            </div>
-            <p class="note">อยากให้ใครได้ไม่เท่าคนอื่น ใส่จำนวนในช่องท้ายชื่อด้านบน ช่องที่เว้นว่างจะได้ตามค่าเริ่มต้น</p>
-            <button class="btn" id="g-start" type="button">เริ่มเกมใหม่ แจกชิปทุกคน</button>
-            <p class="note" id="g-msg" aria-live="polite"></p>
-          </div>
-        </div>
-        <button class="btn only-narrow" id="sheet-close" type="button">ปิด</button>
-        </div></div>
+    <div class="status">
+      <div class="banner" id="banner">
+        <p id="banner-text"></p>
+        <button class="link" id="mode-toggle" type="button">เล่นกับเพื่อน</button>
       </div>
-
-      <div class="col">
-        <div class="chips" id="chips" role="group" aria-label="เลือกชิป">
-          <button class="chip" data-v="1" aria-pressed="false" type="button">1</button>
-          <button class="chip" data-v="5" aria-pressed="true" type="button">5</button>
-          <button class="chip" data-v="25" aria-pressed="false" type="button">25</button>
-          <button class="chip" data-v="100" aria-pressed="false" type="button">100</button>
-        </div>
-        <p class="hint" id="hint">แตะเลขเพื่อแทงเดี่ยว แตะจุดบนเส้นเพื่อแทงคร่อม มุม แถว หรือหกเลข</p>
-        <div class="rail">
-          <div class="layout" id="layout">
-            <div class="zero-row" id="zero-row"></div>
-            <div class="dozens" id="dozens"></div>
-            <div class="nums" id="nums"></div>
-            <div class="cols" id="cols"></div>
-            <div class="evens" id="evens"></div>
-          </div>
-        </div>
+      <p class="msg" id="msg" aria-live="polite">วางชิปบนโต๊ะ แล้วกดหมุน</p>
+      <div class="history" id="history" aria-label="ผลย้อนหลัง"></div>
+      <button class="link" id="stats-btn" type="button">สถิติ</button>
+      <button class="link" id="rot-btn" type="button" hidden>จอตั้ง</button>
+      <button class="link" id="snd-btn" type="button" aria-pressed="true">เสียง</button>
+    </div>
+    <div class="rail">
+      <div class="layout" id="layout">
+        <div class="zero-row" id="zero-row"></div>
+        <div class="dozens" id="dozens"></div>
+        <div class="nums" id="nums"></div>
+        <div class="cols" id="cols"></div>
+        <div class="evens" id="evens"></div>
       </div>
     </div>
-
-    <div class="actions">
-      <button class="btn" id="undo" type="button">ย้อน</button>
-      <button class="btn" id="clear" type="button">ล้าง</button>
-      <button class="btn" id="rebet" type="button">แทงซ้ำ</button>
-      <button class="btn primary" id="spin" type="button">หมุน</button>
+    <div class="controls">
+      <div class="chips" id="chips" role="group" aria-label="เลือกชิป">
+        <button class="chip" data-v="1" aria-pressed="false" type="button">1</button>
+        <button class="chip" data-v="5" aria-pressed="true" type="button">5</button>
+        <button class="chip" data-v="25" aria-pressed="false" type="button">25</button>
+        <button class="chip" data-v="100" aria-pressed="false" type="button">100</button>
+      </div>
+      <div class="acts">
+        <button class="btn" id="undo" type="button">ย้อน</button>
+        <button class="btn" id="clear" type="button">ล้าง</button>
+        <button class="btn" id="rebet" type="button">แทงซ้ำ</button>
+        <button class="btn primary" id="spin" type="button">หมุน</button>
+      </div>
     </div>
   </section>
 
@@ -356,6 +322,49 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     </div>
   </section>
 </div>
+
+<div class="wheel-ov" id="wheel-ov" hidden>
+  <div class="wheel-wrap">
+    <canvas id="wheel" aria-label="วงล้อรูเลต"></canvas>
+    <div class="readout"><span id="readout"></span></div>
+  </div>
+</div>
+</div>
+
+<div class="sheet" id="sheet"><div class="sheet-in">
+        <div class="panel" id="tally">
+          <dl>
+            <dt>เล่นไปแล้ว</dt><dd id="s-spins">0 ตา</dd>
+            <dt>ยอดแทงรวม</dt><dd id="s-wagered">0</dd>
+            <dt>ผลจริง</dt><dd id="s-net">0</dd>
+            <dt>ตามทฤษฎีควรเสีย</dt><dd id="s-theory">0</dd>
+          </dl>
+          <p class="note">ทฤษฎี = ยอดแทงรวม ÷ 37 (เจ้ามือได้เปรียบ 2.7%) ยิ่งเล่นมาก ผลจริงยิ่งวิ่งเข้าหาเลขนี้</p>
+          <div class="row"><button class="link" id="reset" type="button">เริ่มใหม่ 1,000 ชิป</button></div>
+        </div>
+        <div class="panel" id="dealer" hidden>
+          <h2>สมุดเจ้ามือ</h2>
+          <dl>
+            <dt>ยอดแทงรอบนี้</dt><dd id="d-stake">0</dd>
+            <dt>ผลเจ้ามือรอบนี้</dt><dd id="d-round">–</dd>
+            <dt>กำไรเจ้ามือสะสม</dt><dd id="d-total">0</dd>
+          </dl>
+          <ul class="plist" id="d-players"></ul>
+          <p class="note" id="d-note">ยังไม่มีผู้เล่นเข้าโต๊ะ กด “เชิญเพื่อน” ด้านบนเพื่อส่งลิงก์</p>
+          <div class="setup">
+            <h2>ตั้งเกมใหม่</h2>
+            <div class="setrow">
+              <label class="lab" for="g-def">ชิปเริ่มต้นของทุกคน</label>
+              <input class="num" id="g-def" inputmode="numeric" autocomplete="off" maxlength="7" value="1000">
+            </div>
+            <p class="note">อยากให้ใครได้ไม่เท่าคนอื่น ใส่จำนวนในช่องท้ายชื่อด้านบน ช่องที่เว้นว่างจะได้ตามค่าเริ่มต้น</p>
+            <button class="btn" id="g-start" type="button">เริ่มเกมใหม่ แจกชิปทุกคน</button>
+            <p class="note" id="g-msg" aria-live="polite"></p>
+          </div>
+        </div>
+        <p class="note" style="margin:0;text-align:center;color:var(--muted);font-size:.8rem">ชิปสมมุติ ไม่ใช่เงินจริง</p>
+        <button class="btn" id="sheet-close" type="button">ปิด</button>
+</div></div>
 
 <div class="modal" id="lobby" hidden>
   <div class="panel modal-in" role="dialog" aria-labelledby="l-title">
@@ -451,14 +460,20 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
   function spot(nums, x, y, label) {
     var b = document.createElement("button");
     b.type = "button"; b.className = "spot";
-    b.style.left = (x * 100) + "%"; b.style.top = (y * 100) + "%";
+    b.style.setProperty("--px", (x * 100) + "%"); b.style.setProperty("--py", (y * 100) + "%");
+    b.style.setProperty("--lx", (y * 100) + "%"); b.style.setProperty("--ly", ((1 - x) * 100) + "%");
     b.setAttribute("aria-label", label + " " + nums.join("/"));
     $("nums").appendChild(b);
     register(b, "n:" + nums.join("-"), nums);
   }
   var numCells = {};
   numCells[0] = cell($("zero-row"), "0", "n:0", [0], "zero", "เลข 0");
-  for (var n = 1; n <= 36; n++) numCells[n] = cell($("nums"), String(n), "n:" + n, [n], colorOf(n), "เลข " + n);
+  for (var n = 1; n <= 36; n++) {
+    numCells[n] = cell($("nums"), String(n), "n:" + n, [n], colorOf(n), "เลข " + n);
+    var nr = Math.floor((n - 1) / 3), nc = (n - 1) % 3, st = numCells[n].style;
+    st.setProperty("--pc", nc + 1); st.setProperty("--pr", nr + 1);   // portrait: 3 wide, 12 tall
+    st.setProperty("--lc", nr + 1); st.setProperty("--lr", 3 - nc);   // landscape: 12 wide, 3 tall
+  }
   for (var r = 0; r < 12; r++) {
     for (var c = 0; c < 3; c++) {
       var m = r * 3 + c + 1;
@@ -489,12 +504,58 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
   });
   if (bets.size) betsRound = savedRound;
 
+  /* ---------- sound: synthesised in the browser, starts after the first tap ---------- */
+  var snd = { ctx: null, on: true, noise: null, lastTick: 0, fresh: false };
+  try { snd.on = localStorage.getItem("roulette-snd") !== "0"; } catch (e) {}
+  function actx() {
+    if (!snd.on) return null;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try {
+      if (!snd.ctx) snd.ctx = new AC();
+      if (snd.ctx.state === "suspended") snd.ctx.resume();
+    } catch (e) { return null; }
+    return snd.ctx;
+  }
+  document.addEventListener("pointerdown", function () { actx(); }, { passive: true });
+  function tone(freq, dur, type, vol, delay, slideTo) {
+    var c = actx(); if (!c) return;
+    var t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || "sine"; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function click(freq, dur, vol) {
+    var c = actx(); if (!c) return;
+    if (!snd.noise) {
+      snd.noise = c.createBuffer(1, Math.floor(c.sampleRate * 0.1), c.sampleRate);
+      var d = snd.noise.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    var t = c.currentTime, src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    src.buffer = snd.noise; f.type = "bandpass"; f.frequency.value = freq; f.Q.value = 1.4;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(c.destination); src.start(t); src.stop(t + dur + 0.02);
+  }
+  var sfx = {
+    chip: function () { click(3400, 0.035, 0.5); tone(1750, 0.05, "triangle", 0.1); },
+    back: function () { tone(520, 0.07, "triangle", 0.1, 0, 380); },
+    tick: function () { click(2500, 0.02, 0.32); },
+    drop: function () { click(1800, 0.06, 0.6); tone(900, 0.09, "triangle", 0.16); tone(680, 0.14, "triangle", 0.14, 0.08); },
+    win: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.2, "triangle", 0.2, 0.25 + i * 0.1); }); },
+    lose: function () { tone(240, 0.4, "sine", 0.2, 0.25, 120); },
+    open: function () { tone(700, 0.09, "triangle", 0.14); tone(1050, 0.14, "triangle", 0.14, 0.09); },
+    good: function () { tone(880, 0.08, "triangle", 0.15); tone(1320, 0.14, "triangle", 0.15, 0.08); },
+    bad: function () { tone(200, 0.22, "square", 0.07); }
+  };
+
   /* ---------- betting ---------- */
   function setMsg(html) { $("msg").innerHTML = html; }
   function stakeMsg() { return "แทงอยู่ <strong class=\"staked\">" + fmt(staked()) + "</strong> ชิป"; }
   function idleMsg() {
     if (mode !== "live") return "วางชิปบนโต๊ะ แล้วกดหมุน";
-    if (live.isDealer) return !table ? "กด “เปิดโต๊ะ” เพื่อเริ่มรับแทง" : table.phase === "open" ? "รอบที่ " + table.round + " เปิดรับแทงอยู่" : "กด “เปิดรอบใหม่” เพื่อรับแทงต่อ";
+    if (live.isDealer) return !table ? "ผู้เล่นเข้าครบแล้วกด “แจกชิป เริ่มเกม”" : table.phase === "open" ? "รอบที่ " + table.round + " เปิดรับแทงอยู่" : "กด “เปิดรอบใหม่” เพื่อรับแทงต่อ";
     if (!table) return live.status || "รอเจ้ามือเปิดโต๊ะ";
     return table.phase === "open" ? "รอบที่ " + table.round + " เปิดรับแทงแล้ว วางชิปได้" : "รอเจ้ามือเปิดรอบใหม่";
   }
@@ -515,21 +576,21 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     bets.set(key, (bets.get(key) || 0) + chip);
     stack.push([key, chip]);
     betsRound = mode === "live" ? table.round : null;
-    setMsg(stakeMsg()); render(); queueSync();
+    sfx.chip(); setMsg(stakeMsg()); render(); queueSync();
   }
   function undo() {
     if (!canBet() || !stack.length) return;
     var last = stack.pop(), left = bets.get(last[0]) - last[1];
     if (left > 0) bets.set(last[0], left); else bets.delete(last[0]);
     state.balance += last[1];
-    setMsg(bets.size ? stakeMsg() : idleMsg()); render(); queueSync();
+    sfx.back(); setMsg(bets.size ? stakeMsg() : idleMsg()); render(); queueSync();
   }
   function refund() {
     state.balance += staked(); bets.clear(); stack = []; betsRound = null;
   }
   function clearBets() {
     if (!canBet() || !bets.size) return;
-    refund(); setMsg(idleMsg()); render(); queueSync();
+    refund(); sfx.back(); setMsg(idleMsg()); render(); queueSync();
   }
   function rebet() {
     if (!canBet() || !lastBets.length) return;
@@ -543,6 +604,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
       } else skipped++;
     });
     if (bets.size) betsRound = mode === "live" ? table.round : null;
+    if (bets.size) sfx.chip();
     setMsg(skipped ? "ชิปไม่พอแทงซ้ำครบทุกช่อง" : stakeMsg()); render(); queueSync();
   }
   function payback(entries, result) {
@@ -569,6 +631,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     lastRoundNet = st ? net : null; lastRound = round === undefined ? null : round;
     bets.clear(); stack = []; betsRound = null;
     var head = showResult(result);
+    if (snd.fresh && st) { if (net > 0) sfx.win(); else if (net < 0) sfx.lose(); }
     if (!st) setMsg(head + (mode === "live" ? "" : " · ตานี้ไม่ได้แทง"));
     else if (net > 0) setMsg(head + " · <span class=\"win\">ได้ " + signed(net) + " ชิป</span>");
     else if (net === 0) setMsg(head + " · เสมอตัว");
@@ -645,6 +708,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     } else if (table.phase === "open" && shownOpen !== table.round) {
       shownOpen = table.round;
       if (!quiet || !hitEl) { clearHit(); $("readout").textContent = ""; }
+      if (!quiet && !live.isDealer) sfx.open();
       setMsg(gameNote || (bets.size ? stakeMsg() : idleMsg())); gameNote = null;
     }
   }
@@ -668,11 +732,13 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     var next = { round: (table ? table.round : 0) + 1, phase: "open", result: null, history: [], game: game, def: def, start: start };
     dealerBusy = true; render();
     live.tableRef.set(next).then(function () {
-      dealerBusy = false; $("g-msg").textContent = "เริ่มเกมที่ " + game + " แล้ว แจกชิปเรียบร้อย เปิดรับแทงอยู่"; render();
+      dealerBusy = false; $("g-msg").textContent = ""; $("sheet").classList.remove("open");
+      setMsg("แจกชิปแล้ว เกมที่ " + game + " เปิดรับแทง"); render();
     }, function () { dealerBusy = false; $("g-msg").textContent = "บันทึกไม่สำเร็จ ลองกดอีกครั้ง"; render(); });
   }
   function dealerAct() {
     if (dealerBusy || spinning || mode !== "live" || !live.isDealer) return;
+    if (!table) { $("g-msg").textContent = ""; $("sheet").classList.add("open"); return; }   // first set each player's chips
     var next;
     if (!table || table.phase === "spun") next = { round: (table ? table.round : 0) + 1, phase: "open", result: null, history: table ? table.history : [] };
     else { var res = rand37(); next = { round: table.round, phase: "spun", result: res, history: [res].concat(table.history).slice(0, 15) }; }
@@ -869,7 +935,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
   /* ---------- render ---------- */
   var nameToken = 0;
   function renderDealer() {
-    var round = table ? table.round : null, spun = table && table.phase === "spun";
+    var round = table ? table.round : null, spun = !!table && table.phase === "spun" && !spinning;
     var agg = new Map(), stakeAll = 0, houseRound = 0, houseTotal = 0, rows = [];
     players.forEach(function (p) {
       var d = p.d, vb = d.round === round ? validBets(d) : [], st = 0;
@@ -920,7 +986,6 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     $("reset").hidden = isLive && !!table && table.game !== null;
     $("g-start").disabled = spinning || dealerBusy;
     $("chips").hidden = dealer; $("tally").hidden = dealer; $("dealer").hidden = !dealer;
-    $("hint").textContent = dealer ? "ชิปบนโต๊ะคือยอดรวมที่ผู้เล่นแทงเข้ามา" : "แตะเลขเพื่อแทงเดี่ยว แตะจุดบนเส้นเพื่อแทงคร่อม มุม แถว หรือหกเลข";
     var shown = dealer ? renderDealer() : bets;
     if (!dealer) $("balance").textContent = fmt(state.balance);
     spots.forEach(function (s, key) {
@@ -935,9 +1000,11 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     $("s-theory").textContent = state.wagered ? "−" + (state.wagered / 37 < 10 ? (state.wagered / 37).toFixed(1) : fmt(state.wagered / 37)) : "0";
 
     var hist = isLive ? (table ? table.history : []) : state.history;
+    // while the ball is still running, keep the new number out of the history strip
+    if (isLive && spinning && table && table.phase === "spun" && shownRound === table.round) hist = hist.slice(1);
     var h = $("history"); h.textContent = "";
     if (!hist.length) {
-      var e = document.createElement("span"); e.className = "empty"; e.textContent = "ยังไม่มีผลย้อนหลัง"; h.appendChild(e);
+      var e = document.createElement("span"); e.className = "empty"; e.textContent = "ยังไม่มีผล"; h.appendChild(e);
     }
     hist.slice(0, 15).forEach(function (x) {
       var d = document.createElement("span"); d.className = "h " + colorOf(x); d.textContent = x; h.appendChild(d);
@@ -954,7 +1021,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
       spin.textContent = spinning ? "กำลังหมุน…" : bets.size ? "หมุน (" + fmt(staked()) + ")" : "หมุน";
     } else if (dealer) {
       spin.disabled = spinning || dealerBusy;
-      spin.textContent = spinning ? "กำลังหมุน…" : !table ? "เปิดโต๊ะ รับแทง" : table.phase === "open" ? "ปิดรับแทง แล้วหมุน" : "เปิดรอบใหม่";
+      spin.textContent = spinning ? "กำลังหมุน…" : !table ? "แจกชิป เริ่มเกม" : table.phase === "open" ? "ปิดรับแทง แล้วหมุน" : "เปิดรอบใหม่";
     } else {
       spin.disabled = true;
       spin.textContent = spinning ? "กำลังหมุน…" : table && table.phase === "open" ? "รอเจ้ามือหมุน" + (bets.size ? " (" + fmt(staked()) + ")" : "") : "รอเจ้ามือเปิดรอบใหม่";
@@ -1033,17 +1100,26 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
       ctx.beginPath(); ctx.arc(bx, by, br, 0, 7); ctx.fillStyle = g; ctx.fill();
     }
   }
+  var wheelTimer = null;
+  function hideWheel() { clearTimeout(wheelTimer); if (!spinning) $("wheel-ov").hidden = true; }
+  $("wheel-ov").addEventListener("click", hideWheel);
   function spinTo(idx, done) {
+    clearTimeout(wheelTimer); $("readout").textContent = ""; $("wheel-ov").hidden = false; sizeCanvas();
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var dur = reduce ? 700 : 5200, t0 = performance.now(), w0 = wheelAng;
     var turnsW = Math.PI * 2 * (reduce ? 0.5 : 2.5), K = Math.PI * 2 * (reduce ? 1 : 7);
+    var lastPocket = -1;
     function frame(now) {
       var t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
       wheelAng = w0 + e * turnsW;
       var u = t < 0.7 ? 0 : (t - 0.7) / 0.3, drop = u * u * (3 - 2 * u);
       draw(wheelAng, wheelAng + idx * SEG + (1 - e) * K, 0.845 - 0.285 * drop);
+      // one tick per pocket the ball passes, capped so the fast start is a rattle rather than a buzz
+      var pocket = Math.floor((1 - e) * K / SEG);
+      if (pocket !== lastPocket && now - snd.lastTick > 55 && t < 1) { snd.lastTick = now; sfx.tick(); }
+      lastPocket = pocket;
       if (t < 1) requestAnimationFrame(frame);
-      else { wheelAng = wheelAng % (Math.PI * 2); ballIdx = idx; done(); }
+      else { wheelAng = wheelAng % (Math.PI * 2); ballIdx = idx; sfx.drop(); snd.fresh = true; done(); snd.fresh = false; wheelTimer = setTimeout(hideWheel, 2000); }
     }
     requestAnimationFrame(frame);
   }
@@ -1145,6 +1221,7 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
     state.tTotal++;
     if (ok) { state.tScore++; state.tStreak++; if (state.tBest === null || secs < state.tBest) state.tBest = Math.round(secs * 10) / 10; }
     else state.tStreak = 0;
+    if (ok) sfx.good(); else sfx.bad();
     var work = question.items.map(function (it) { return it[2] + "×" + it[1] + " = " + (it[1] * it[2]); }).join("  ·  ");
     if (question.items.length > 1) work += "  →  รวม " + question.answer;
     var fb = $("q-feedback"); fb.textContent = "";
@@ -1174,6 +1251,29 @@ h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; lin
   }
   if (bets.size) setMsg(stakeMsg());
   render(); sizeCanvas();
+  /* ---------- orientation: play sideways even when the phone's rotation is locked ---------- */
+  var ROTKEY = "roulette-rot", rotPref = true;
+  try { rotPref = localStorage.getItem(ROTKEY) !== "0"; } catch (e) {}
+  function applyOrient() {
+    var a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return;   // an on-screen keyboard resizes the window; don't flip mid-typing
+    var w = window.innerWidth, h = window.innerHeight, real = w > h, small = Math.min(w, h) < 600;
+    var rot = !real && small && rotPref, root = document.documentElement;
+    root.classList.toggle("rot", rot); root.classList.toggle("land", real || rot);
+    $("rot-btn").hidden = real || !small; $("rot-btn").textContent = rot ? "จอตั้ง" : "จอนอน";
+  }
+  $("rot-btn").addEventListener("click", function () {
+    rotPref = !rotPref; try { localStorage.setItem(ROTKEY, rotPref ? "1" : "0"); } catch (e) {}
+    applyOrient();
+  });
+  window.addEventListener("resize", applyOrient);
+  applyOrient();
+  $("snd-btn").setAttribute("aria-pressed", snd.on ? "true" : "false");
+  $("snd-btn").addEventListener("click", function () {
+    snd.on = !snd.on; try { localStorage.setItem("roulette-snd", snd.on ? "1" : "0"); } catch (e) {}
+    $("snd-btn").setAttribute("aria-pressed", snd.on ? "true" : "false");
+    if (snd.on) sfx.open();
+  });
   initNet();
 })();
 </script>
